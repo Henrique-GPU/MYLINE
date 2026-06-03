@@ -1,0 +1,446 @@
+MYLINE CS2 — DOCUMENTAÇÃO TÉCNICA COMPLETA
+Versão: V1 MVP
+Última atualização: Junho 2025
+
+1. VISÃO GERAL DO PRODUTO
+MyLine CS2 é uma plataforma competitiva de Counter-Strike 2 composta por duas frentes independentes que coexistem no mesmo site mas nunca se misturam.
+
+FRENTE 1 — FANTASY OFICIAL (Cartola CS2)
+Usuários montam uma "line" com jogadores profissionais reais e pontuam com base no desempenho deles em campeonatos oficiais.
+Campeonatos suportados:
+
+IEM Katowice
+IEM Cologne
+ESL Pro League
+BLAST Premier
+PGL Major
+Esports World Cup
+Thunderpick World Championship
+
+Características:
+
+Moeda interna: Line Coins (LC)
+100.000 LC por campeonato (patrimônios separados)
+Jogadores PRO cadastrados pelo admin
+Stats inseridas manualmente pelo admin via HLTV
+Sistema calcula pontuação automaticamente
+Dois rankings: Principal (pontos) e Econômico (LC)
+
+
+FRENTE 2 — CAMPEONATOS DA COMUNIDADE
+Usuários criam seus próprios campeonatos amadores.
+Características:
+
+Qualquer usuário pode criar campeonato
+Times amadores se inscrevem via código de convite
+Jogadores amadores são usuários reais do site
+Stats registradas por partida (jogadores amadores)
+Bracket e classificação públicos ao vivo
+Sem LC, sem Fantasy
+Foco: organização de torneios amadores
+Patrocinadores e streamers podem criar campeonatos pagos
+
+
+2. TIPOS DE USUÁRIO
+USUÁRIO COMUM
+→ Cria conta e loga (e-mail + senha)
+→ Participa do Fantasy Oficial (Frente 1)
+→ Escala jogadores PRO com LC
+→ Acumula pontos e LC
+→ Acompanha rankings
+
+USUÁRIO + PERFIL COMPETITIVO
+→ Mesmo login do usuário comum
+→ Ativa perfil de jogador amador separadamente
+→ Tem steam_id, nickname_ingame, posição
+→ Entra em times amadores
+→ Participa de campeonatos da comunidade
+→ Acumula stats e histórico público
+
+ADMIN (único, você)
+→ Cadastra campeonatos oficiais
+→ Cadastra times e jogadores PRO
+→ Define preços LC dos jogadores
+→ Abre e fecha rodadas
+→ Importa stats das partidas via painel
+→ Controle total da Frente 1
+→ Nunca mistura com a Frente 2
+
+3. MOEDA — LINE COINS (LC)
+
+Nome: Line Coins
+Sigla: LC
+Natureza: Moeda virtual interna, sem valor financeiro externo
+Patrimônio inicial: 100.000 LC por campeonato
+Regra: Cada campeonato tem seu próprio patrimônio — não se misturam
+Uso: Montar a line de 5 jogadores respeitando o orçamento disponível
+
+Exemplo:
+Usuário entra no IEM Katowice → 100.000 LC
+Usuário entra no PGL Major    → 100.000 LC (separado)
+Total visível na conta        → mostra por campeonato
+
+4. SISTEMA DE RODADAS
+
+Quantidade de rodadas é dinâmica por campeonato
+Somente uma rodada aberta por vez
+Próxima rodada só abre após a anterior ser encerrada e pontuada
+
+Exemplos de rodadas:
+IEM Katowice:
+Play-In → Grupos → Quartas → Semifinal → Final
+PGL Major:
+Opening Stage → Elimination Stage → Quartas → Semifinal → Final
+Fluxo de uma rodada:
+Admin abre rodada
+→ Usuários escalam (até o prazo)
+→ Admin fecha rodada
+→ Partidas acontecem
+→ Admin importa stats via painel
+→ Sistema calcula pontuação automaticamente
+→ Rankings atualizados
+→ Preços LC atualizados
+→ Admin abre próxima rodada
+
+5. ESCALAÇÃO
+Regras:
+
+5 jogadores por line
+Máximo 2 jogadores do mesmo time
+Soma dos preços não pode ultrapassar o LC disponível
+Line precisa ser confirmada antes do fechamento da rodada
+Jogadores de times eliminados ficam bloqueados
+Time eliminado → jogador aparece marcado como ELIMINADO
+
+
+6. SISTEMA DE PONTUAÇÃO
+
+Fonte dos dados: HLTV.org (Rating 2.0)
+Inserção: Manual pelo admin via painel após cada partida
+Cálculo: Automático pelo sistema após importação
+
+EventoPontosKill+1.0Assistência+0.5Morte-0.4K/D positivo+2.0K/D acima de 1.5+4.0Rating 2.0 acima de 1.20+5.0Rating 2.0 entre 1.00 e 1.19+2.0Rating 2.0 abaixo de 0.80-4.0ADR acima de 85+3.0ADR abaixo de 55-2.0Clutch vencido+4.0Ace+6.0MVP da partida+5.0Vitória do time+3.0Derrota do time-1.0Eliminação do campeonato-3.0
+
+Onde alterar as regras: Tabela scoring_rules no banco (futura) ou arquivo config/scoring.js no código.
+
+
+7. VALORIZAÇÃO DOS JOGADORES EM LC
+Após cada rodada o preço do jogador é atualizado automaticamente:
+Pontuação na rodadaVariação do preço LC40+ pontos+8%30 a 39.99+5%20 a 29.99+2%10 a 19.990%0 a 9.99-3%Pontuação negativa-7%Time eliminado-10% e jogador bloqueado
+
+Onde alterar: Tabela player_prices no banco / função calculatePriceVariation() no código.
+
+
+8. RANKINGS
+Ranking Principal
+
+Critério: pontos fantasy acumulados no campeonato
+Tabela: rankings.total_points
+
+Ranking Econômico
+
+Critério: patrimônio LC atual no campeonato
+Tabela: rankings.current_lc
+
+
+9. FONTE DE DADOS
+Decisão: Importação semi-automática via painel admin
+Fluxo:
+1. Partida acontece
+2. Admin acessa HLTV.org
+3. Copia stats da tabela de jogadores
+4. Cola no painel admin do MyLine (formulário ou CSV)
+5. Sistema calcula automaticamente:
+   → fantasy_points por jogador
+   → variação LC
+   → atualização de rankings
+   → bloqueio de eliminados
+6. Admin libera próxima rodada
+Custo: R$ 0
+Quando migrar para API:
+
+Após produto validado e com receita
+Opção: PandaScore (negociar plano para fantasy platforms)
+Custo estimado: €400+/mês apenas para CS2
+
+
+10. BANCO DE DADOS (Supabase / PostgreSQL)
+STATUS ATUAL
+✅ Criadas:     users, championships, teams, players,
+                rounds, user_championships
+
+⏳ A criar:     lineups, lineup_players, player_round_stats,
+                player_prices, rankings,
+                community_tournaments, community_teams,
+                community_players, community_player_stats,
+                community_matches, community_standings
+
+FRENTE 1 — TABELAS FANTASY OFICIAL
+users
+Contas dos usuários da plataforma.
+id              uuid PRIMARY KEY
+email           varchar UNIQUE
+nickname        varchar UNIQUE
+password_hash   varchar
+avatar_url      varchar
+role            enum('user', 'admin')
+created_at      timestamp
+championships
+Campeonatos oficiais cadastrados pelo admin.
+id              uuid PRIMARY KEY
+name            varchar          -- "IEM Katowice 2025"
+short_name      varchar          -- "IEM KTO 25"
+tier            enum('S','A','B')
+organizer       varchar          -- "ESL/FACEIT"
+prize_pool      varchar          -- "$1.000.000"
+location        varchar
+start_date      date
+end_date        date
+status          enum('upcoming','active','finished')
+icon            varchar          -- emoji ou URL
+created_at      timestamp
+teams
+Times profissionais participantes.
+id              uuid PRIMARY KEY
+name            varchar          -- "Natus Vincere"
+short_name      varchar          -- "NAVI"
+country         varchar
+region          varchar
+world_ranking   int
+logo_url        varchar
+is_active       boolean
+created_at      timestamp
+players
+Jogadores profissionais cadastrados pelo admin.
+
+Não têm conta no site. São apenas dados.
+
+id              uuid PRIMARY KEY
+team_id         uuid FK → teams
+nickname        varchar          -- "s1mple"
+real_name       varchar
+country         varchar
+role            enum('AWP','Rifler','IGL','Support','Entry')
+photo_url       varchar
+is_active       boolean
+created_at      timestamp
+rounds
+Rodadas de cada campeonato.
+id              uuid PRIMARY KEY
+championship_id uuid FK → championships
+name            varchar          -- "Fase de Grupos"
+round_order     int              -- 1, 2, 3...
+status          enum('upcoming','open','closed','scored')
+opens_at        timestamp
+closes_at       timestamp
+created_at      timestamp
+
+Regra: Somente uma rodada com status='open' por campeonato.
+
+user_championships
+Registro do usuário em um campeonato + patrimônio LC.
+id              uuid PRIMARY KEY
+user_id         uuid FK → users
+championship_id uuid FK → championships
+current_lc      decimal DEFAULT 100000
+joined_at       timestamp
+
+Regra: Ao criar este registro, current_lc começa em 100.000.
+
+lineups
+Escalação do usuário em uma rodada específica.
+id              uuid PRIMARY KEY
+user_id         uuid FK → users
+championship_id uuid FK → championships
+round_id        uuid FK → rounds
+total_cost_lc   decimal          -- soma dos preços na hora
+round_points    decimal DEFAULT 0
+status          enum('draft','confirmed','scored')
+confirmed_at    timestamp
+created_at      timestamp
+
+Regra: Um usuário só pode ter 1 lineup por round_id.
+
+lineup_players
+Os 5 jogadores escolhidos em uma escalação.
+id              uuid PRIMARY KEY
+lineup_id       uuid FK → lineups
+player_id       uuid FK → players
+price_lc_at_pick decimal         -- preço no momento da escalação
+points_earned   decimal DEFAULT 0
+
+Regra: Máximo 5 registros por lineup_id.
+Regra: Máximo 2 jogadores com o mesmo team_id por lineup.
+
+player_prices
+Preço do jogador por rodada (histórico de valorização).
+id              uuid PRIMARY KEY
+player_id       uuid FK → players
+championship_id uuid FK → championships
+round_id        uuid FK → rounds
+price_lc        decimal          -- preço nesta rodada
+variation_pct   decimal          -- % de variação da rodada anterior
+created_at      timestamp
+
+Como funciona: Admin define preço base antes do campeonato.
+Após cada rodada o sistema atualiza baseado em fantasy_points.
+
+player_round_stats
+Performance real do jogador em uma rodada (inserida pelo admin via HLTV).
+id              uuid PRIMARY KEY
+player_id       uuid FK → players
+championship_id uuid FK → championships
+round_id        uuid FK → rounds
+kills           int DEFAULT 0
+deaths          int DEFAULT 0
+assists         int DEFAULT 0
+adr             decimal          -- Average Damage per Round
+rating          decimal          -- HLTV Rating 2.0
+clutches        int DEFAULT 0    -- clutches vencidos
+aces            int DEFAULT 0
+is_mvp          boolean DEFAULT false
+won_match       boolean
+eliminated      boolean DEFAULT false  -- time eliminado?
+fantasy_points  decimal          -- calculado automaticamente
+lc_variation_pct decimal         -- calculado automaticamente
+created_at      timestamp
+
+Onde as regras de pontuação são aplicadas: função calculateFantasyPoints() no backend.
+Onde alterar pontuação: arquivo config/scoring.js (ou tabela scoring_rules futura).
+
+rankings
+Ranking acumulado do usuário por campeonato.
+id              uuid PRIMARY KEY
+user_id         uuid FK → users
+championship_id uuid FK → championships
+total_points    decimal DEFAULT 0   -- Ranking Principal
+current_lc      decimal DEFAULT 100000  -- Ranking Econômico
+position        int                 -- calculado após cada rodada
+updated_at      timestamp
+
+FRENTE 2 — TABELAS COMUNIDADE
+community_tournaments
+Campeonatos criados por usuários/organizadores.
+id              uuid PRIMARY KEY
+owner_id        uuid FK → users
+name            varchar
+description     text
+format          varchar          -- "Eliminatória", "Grupos+Playoffs"
+max_teams       int
+prize_pool      varchar
+invite_code     varchar UNIQUE   -- código de convite
+status          enum('draft','open','active','finished')
+is_paid         boolean          -- campeonato pago (patrocinador)
+created_at      timestamp
+community_teams
+Times amadores inscritos em campeonatos da comunidade.
+id              uuid PRIMARY KEY
+tournament_id   uuid FK → community_tournaments
+name            varchar
+tag             varchar          -- "FBRZ"
+logo_url        varchar
+captain_id      uuid FK → users
+created_at      timestamp
+community_player_profile
+Perfil competitivo do usuário como jogador amador.
+
+Extensão do usuário — não é uma tabela de pessoas separada.
+
+id              uuid PRIMARY KEY
+user_id         uuid FK → users  -- mesmo usuário da conta
+steam_id        varchar
+nickname_ingame varchar
+role            enum('AWP','Rifler','IGL','Support','Entry')
+bio             text
+created_at      timestamp
+community_team_members
+Relação entre jogadores amadores e times.
+id              uuid PRIMARY KEY
+team_id         uuid FK → community_teams
+user_id         uuid FK → users
+role            varchar
+joined_at       timestamp
+community_matches
+Partidas de um campeonato da comunidade.
+id              uuid PRIMARY KEY
+tournament_id   uuid FK → community_tournaments
+team_a_id       uuid FK → community_teams
+team_b_id       uuid FK → community_teams
+winner_id       uuid FK → community_teams NULL
+scheduled_at    timestamp
+status          enum('upcoming','live','finished')
+stage           varchar          -- "Grupos", "Quartas", "Final"
+created_at      timestamp
+community_player_stats
+Stats dos jogadores amadores por partida.
+id              uuid PRIMARY KEY
+match_id        uuid FK → community_matches
+user_id         uuid FK → users
+team_id         uuid FK → community_teams
+kills           int DEFAULT 0
+deaths          int DEFAULT 0
+assists         int DEFAULT 0
+adr             decimal
+rating          decimal
+clutches        int DEFAULT 0
+aces            int DEFAULT 0
+is_mvp          boolean DEFAULT false
+won_match       boolean
+created_at      timestamp
+community_standings
+Classificação de um campeonato da comunidade.
+id              uuid PRIMARY KEY
+tournament_id   uuid FK → community_tournaments
+team_id         uuid FK → community_teams
+wins            int DEFAULT 0
+losses          int DEFAULT 0
+draws           int DEFAULT 0
+points          int DEFAULT 0
+position        int
+updated_at      timestamp
+
+11. ONDE ALTERAR CADA REGRA
+RegraOnde alterarPontuação (kills, deaths, etc.)config/scoring.js → objeto SCORING_RULESValorização LCconfig/scoring.js → objeto LC_VARIATIONLC inicial por campeonatoconfig/constants.js → INITIAL_LC = 100000Máx jogadores por time na lineconfig/constants.js → MAX_SAME_TEAM = 2Tamanho da lineconfig/constants.js → LINEUP_SIZE = 5Preço base dos jogadoresPainel Admin → Campeonatos → Jogadores → PreçoAbrir/fechar rodadaPainel Admin → Rodadas → StatusImportar statsPainel Admin → Stats → Importar por rodada
+
+12. STACK TECNOLÓGICA
+Frontend    → HTML/CSS/JS (atual) → Next.js (futuro)
+Banco       → Supabase (PostgreSQL)
+Auth        → Supabase Auth
+Deploy      → GitHub + Vercel
+API dados   → Manual via painel admin (HLTV como fonte)
+
+13. STATUS ATUAL DO PROJETO
+✅ Documentação oficial completa
+✅ Protótipo HTML visual funcional
+✅ GitHub configurado
+✅ Supabase configurado
+✅ Tabelas iniciais criadas no banco
+✅ Moeda definida: Line Coins (LC)
+✅ Regras de pontuação definidas
+✅ Regras de valorização definidas
+✅ Fonte de dados definida (HLTV manual)
+✅ Dois módulos separados documentados
+
+⏳ Pendente
+→ Instalar Node.js
+→ Criar projeto Next.js
+→ Criar tabelas restantes no Supabase
+→ Conectar frontend ao banco
+→ Painel admin funcional
+→ Lógica de pontuação automática
+→ Sistema de LC e valorização
+→ Rankings em tempo real
+
+14. PRÓXIMOS PASSOS (ordem recomendada)
+1. Instalar Node.js
+2. Criar projeto Next.js conectado ao Supabase
+3. Criar tabelas restantes no Supabase
+4. Auth (login, cadastro, sessão)
+5. Painel Admin — Campeonatos e Rodadas
+6. Painel Admin — Importação de stats
+7. Cálculo automático de fantasy_points
+8. Tela de escalação com LC real
+9. Rankings em tempo real
+10. Frente 2 — Campeonatos da Comunidade
+
+Documento gerado em Junho 2025 — MyLine CS2 V1 MVP
