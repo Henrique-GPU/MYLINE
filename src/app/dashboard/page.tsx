@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getEventMeta } from '@/lib/events'
 
 export default async function DashboardPage() {
   const supabase = getSupabaseServerClient()
@@ -76,32 +77,56 @@ export default async function DashboardPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {(championships ?? []).map(c => {
                   const s = STATUS_LABEL[c.status] ?? STATUS_LABEL.finished
+                  const meta = getEventMeta(c.name)
+                  const accent = meta.accentColor
                   const isBlast = c.name.toLowerCase().includes('blast')
                   return (
-                    <div key={c.id} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s' }}
-                      className="hover-card hover-card-green">
-                      {/* Mini banner */}
-                      <div style={{
-                        height: 56, position: 'relative', overflow: 'hidden',
-                        background: isBlast ? 'linear-gradient(135deg, #0a0500, #1a0800 50%, #0d0400)' : 'linear-gradient(135deg,#001a0a,#002a12)',
-                        display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12,
-                        borderBottom: '1px solid var(--border)',
-                      }}>
-                        {isBlast && <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,107,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.06) 1px,transparent 1px)', backgroundSize: '20px 20px' }} />}
-                        <span style={{ fontSize: 24, position: 'relative', zIndex: 1 }}>🏆</span>
-                        <div style={{ position: 'relative', zIndex: 1, flex: 1, minWidth: 0 }}>
-                          <div className="font-condensed" style={{ fontWeight: 900, fontSize: 15, color: 'var(--white)', letterSpacing: '.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                          <div className="font-tech" style={{ fontSize: 11, color: 'var(--text3)' }}>{(c.initial_lc ?? 100000).toLocaleString('pt-BR')} LC</div>
+                    <div key={c.id} style={{ background: 'var(--bg2)', border: `1px solid ${accent}20`, borderRadius: 12, overflow: 'hidden', transition: 'all .2s' }}
+                      className="hover-card">
+                      {/* Top accent line */}
+                      <div style={{ height: 2, background: `linear-gradient(90deg, ${accent}, ${accent}44)` }} />
+                      {/* Banner */}
+                      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', overflow: 'hidden' }}>
+                        {/* Background glow */}
+                        <div style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 120, height: 80, background: `radial-gradient(ellipse, ${accent}18, transparent 70%)`, pointerEvents: 'none' }} />
+                        {/* MyLine logo mark */}
+                        <div style={{ width: 40, height: 40, borderRadius: 8, background: `${accent}15`, border: `1px solid ${accent}35`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          {isBlast ? (
+                            <span style={{ fontSize: 18 }}>🏆</span>
+                          ) : (
+                            <>
+                              <span className="font-condensed text-gradient-green" style={{ fontWeight: 900, fontSize: 10, letterSpacing: '.04em', lineHeight: 1 }}>ML</span>
+                              <span style={{ fontSize: 7, color: 'var(--text3)', letterSpacing: '.1em' }}>CS2</span>
+                            </>
+                          )}
                         </div>
-                        <span className={`${s.cls}`} style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.07em', padding: '3px 9px', borderRadius: 20, position: 'relative', zIndex: 1, flexShrink: 0 }}>
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--white)', letterSpacing: '.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{meta.flagEmoji} {meta.location} · {meta.dates}</span>
+                            <span className="font-tech" style={{ fontSize: 10, color: meta.prize !== '—' ? 'var(--gold)' : 'var(--text3)', fontWeight: 700 }}>{meta.prize}</span>
+                          </div>
+                        </div>
+                        <span className={s.cls} style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.07em', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>
                           {s.label}
                         </span>
                       </div>
-                      <div style={{ padding: '12px 16px', display: 'flex', gap: 8 }}>
-                        <Link href={`/fantasy/${c.id}/mercado`} style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'linear-gradient(90deg,var(--green),var(--cyan))', color: '#000', fontWeight: 900, fontSize: 12, borderRadius: 7, textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.04em', textTransform: 'uppercase' }}>
-                          Montar Lineup
+                      {/* Actions */}
+                      <div style={{ padding: '0 12px 12px', display: 'flex', gap: 8 }}>
+                        <Link href={`/fantasy/${c.id}/mercado`} style={{
+                          flex: 1, textAlign: 'center', padding: '8px',
+                          background: `linear-gradient(90deg, ${accent}, ${accent}aa)`,
+                          color: '#000', fontWeight: 900, fontSize: 11, borderRadius: 7,
+                          textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.06em', textTransform: 'uppercase',
+                        }}>
+                          ⚡ Montar Lineup
                         </Link>
-                        <Link href={`/fantasy/${c.id}/ranking`} style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'var(--bg3)', color: 'var(--text2)', fontWeight: 600, fontSize: 12, borderRadius: 7, textDecoration: 'none', fontFamily: 'inherit', border: '1px solid var(--border)' }}>
+                        <Link href={`/fantasy/${c.id}/ranking`} style={{
+                          padding: '8px 14px', background: 'var(--bg3)', color: 'var(--text2)',
+                          fontWeight: 600, fontSize: 11, borderRadius: 7, textDecoration: 'none',
+                          fontFamily: 'inherit', border: '1px solid var(--border)', whiteSpace: 'nowrap',
+                        }}>
                           Ranking
                         </Link>
                       </div>
