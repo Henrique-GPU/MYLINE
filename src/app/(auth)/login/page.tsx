@@ -41,15 +41,8 @@ export default function LoginPage() {
     return null
   }
 
-  async function handleSteamLogin() {
-    const supabase = getSupabaseBrowserClient()
-    await supabase.auth.signInWithOAuth({
-      provider: 'steam' as Parameters<typeof supabase.auth.signInWithOAuth>[0]['provider'],
-      options: {
-        redirectTo: `${window.location.origin}/steam/callback`,
-        scopes: 'openid',
-      },
-    })
+  function handleSteamLogin() {
+    window.location.href = '/api/auth/steam'
   }
 
   const [state, formAction, pending] = useActionState(loginAction, null)
