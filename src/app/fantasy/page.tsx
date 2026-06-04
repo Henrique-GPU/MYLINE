@@ -38,118 +38,98 @@ export default async function FantasyPage() {
   function Card({ c }: { c: Championship }) {
     const s = STATUS[c.status as keyof typeof STATUS] ?? STATUS.finished
     const isBlast = c.name.toLowerCase().includes('blast')
+    const accentColor = isBlast ? '#ff6b00' : '#00f075'
+    const cta = c.status === 'finished' ? 'Ver resultado final' : 'Montar sua lineup →'
 
     return (
       <div style={{
-        background: 'var(--bg2)', border: '1px solid var(--border)',
-        borderRadius: 12, overflow: 'hidden', transition: 'all .2s',
+        background: 'var(--bg2)',
+        border: `1px solid ${accentColor}30`,
+        borderRadius: 16, overflow: 'hidden',
+        transition: 'all .25s',
+        boxShadow: `0 4px 24px ${accentColor}10`,
       }}
         className="hover-card hover-card-green"
       >
-        {/* Banner */}
-        <div style={{
-          height: 130, position: 'relative', overflow: 'hidden',
-          borderBottom: '1px solid var(--border)',
-          background: isBlast
-            ? 'linear-gradient(180deg, #02010a 0%, #0d0300 40%, #1a0500 70%, #2a0800 100%)'
-            : BANNERS[c.status] ?? BANNERS.finished,
-        }}>
-          {/* Real BLAST arena image */}
-          {isBlast && (
-            <img
-              src="/api/img/blast"
-              alt="BLAST Arena"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: .45, mixBlendMode: 'luminosity' }}
-            />
-          )}
-          {isBlast && (
-            <>
-              {/* Arena floor glow — cone of orange light from bottom */}
-              <div style={{ position: 'absolute', bottom: -20, left: '50%', transform: 'translateX(-50%)', width: '120%', height: 120, background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,80,0,.55) 0%, rgba(255,140,0,.2) 40%, transparent 75%)', animation: 'arena-glow 3s ease-in-out infinite' }} />
-              {/* Stage spotlight left */}
-              <div style={{ position: 'absolute', bottom: 0, left: '15%', width: 80, height: 130, background: 'linear-gradient(to top, rgba(255,100,0,.35), transparent)', transform: 'skewX(-20deg)', transformOrigin: 'bottom' }} />
-              {/* Stage spotlight right */}
-              <div style={{ position: 'absolute', bottom: 0, right: '15%', width: 80, height: 130, background: 'linear-gradient(to top, rgba(255,150,0,.3), transparent)', transform: 'skewX(20deg)', transformOrigin: 'bottom' }} />
-              {/* Stage spotlight center */}
-              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 140, height: 130, background: 'linear-gradient(to top, rgba(255,200,0,.4), transparent)' }} />
-              {/* Diamond pattern overlay */}
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(45deg, rgba(255,107,0,.04) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,107,0,.04) 25%, transparent 25%)', backgroundSize: '16px 16px', opacity: .8 }} />
-              {/* Top dark vignette */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(to bottom, rgba(2,1,10,.9), transparent)' }} />
-              {/* Crowd silhouette */}
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 28, background: 'linear-gradient(to top, rgba(2,1,10,.95) 0%, rgba(5,2,15,.6) 60%, transparent 100%)' }} />
-
-              {/* Content */}
-              <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 18px' }}>
-                <div className="font-condensed" style={{ fontWeight: 700, fontSize: 9, letterSpacing: '.3em', textTransform: 'uppercase', color: 'rgba(255,140,0,.8)', marginBottom: 3 }}>
-                  ◈ BLAST PREMIER ◈
-                </div>
-                <div className="font-condensed text-gradient-orange" style={{ fontWeight: 900, fontSize: 26, letterSpacing: '.03em', textTransform: 'uppercase', lineHeight: .95 }}>
-                  Bounty 2026
-                </div>
-                <div className="font-condensed" style={{ fontWeight: 800, fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'rgba(255,200,50,.9)', marginTop: 4 }}>
-                  SEASON 2 · MALTA · JUL 21 – AGO 2
-                </div>
-              </div>
-              {/* Glowing orb right */}
-              <div style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 100, height: 100, background: 'radial-gradient(circle, rgba(255,100,0,.2), transparent 70%)', zIndex: 1 }} />
-            </>
-          )}
-          {!isBlast && (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏆</div>
-          )}
-          <span style={{
-            position: 'absolute', top: 10, right: 10,
-            fontSize: 10, fontWeight: 700, letterSpacing: '.07em',
-            padding: '3px 9px', borderRadius: 20,
-          }}
-            className={s.cls}
-          >
-            {s.dot && <span style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'currentColor', marginRight:5, animation:'blink .9s ease-in-out infinite', verticalAlign:'middle' }} />}
+        {/* ── BANNER ── */}
+        <div style={{ height: 160, position: 'relative', overflow: 'hidden', background: isBlast ? 'linear-gradient(180deg,#01000a,#100300 60%,#1f0500)' : 'linear-gradient(135deg,#001a0a,#002a12)' }}>
+          {/* Image */}
+          {isBlast && <img src="/api/img/blast" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', opacity: .5 }} />}
+          {/* Overlay gradients */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(1,0,10,.3) 0%, transparent 40%, rgba(1,0,10,.85) 100%)' }} />
+          {isBlast && <div style={{ position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)', width: '100%', height: 80, background: 'radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255,80,0,.5), transparent)', animation: 'arena-glow 3s ease-in-out infinite' }} />}
+          {/* Status badge */}
+          <span className={s.cls} style={{ position: 'absolute', top: 12, left: 14, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', padding: '4px 10px', borderRadius: 20 }}>
+            {s.dot && <span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: 'currentColor', marginRight: 5, animation: 'blink .9s ease-in-out infinite', verticalAlign: 'middle' }} />}
             {s.label}
           </span>
+          {/* Prize pool badge */}
+          {isBlast && (
+            <div style={{ position: 'absolute', top: 12, right: 14, background: 'rgba(255,200,50,.12)', border: '1px solid rgba(255,200,50,.3)', borderRadius: 20, padding: '4px 10px', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ fontSize: 11 }}>🏆</span>
+              <span className="font-tech" style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)' }}>$250,000</span>
+            </div>
+          )}
+          {/* Title in banner */}
+          <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, zIndex: 2 }}>
+            <div className="font-condensed" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', color: `${accentColor}cc`, marginBottom: 3 }}>
+              {isBlast ? '◈ BLAST PREMIER ◈' : '▸ CAMPEONATO OFICIAL'}
+            </div>
+            <h3 className="font-condensed" style={{ fontWeight: 900, fontSize: isBlast ? 24 : 20, color: '#fff', letterSpacing: '.03em', textTransform: 'uppercase', lineHeight: 1, textShadow: '0 2px 8px rgba(0,0,0,.6)' }}>
+              {isBlast ? 'Bounty 2026 · Season 2' : c.name}
+            </h3>
+          </div>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '14px 16px' }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 4 }}>
-            BLAST Premier
-          </p>
-          <h3 className="font-condensed" style={{ fontWeight: 900, fontSize: 19, color: 'var(--white)', letterSpacing: '.03em', marginBottom: 10 }}>
-            {c.name}
-          </h3>
-
-          <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Orçamento</div>
-              <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--white)' }}>
-                {c.initial_lc.toLocaleString('pt-BR')} LC
+        {/* ── BODY ── */}
+        <div style={{ padding: '16px' }}>
+          {/* Stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 16 }}>
+            {[
+              { label: 'Orçamento', value: `${c.initial_lc.toLocaleString('pt-BR')} LC`, color: 'var(--green)' },
+              { label: 'Times', value: '32', color: 'var(--cyan)' },
+              { label: isBlast ? 'Local' : 'Jogadores', value: isBlast ? 'Malta 🇲🇹' : '5 p/ lineup', color: 'var(--yellow)' },
+            ].map(stat => (
+              <div key={stat.label} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '8px 10px', textAlign: 'center', border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 3 }}>{stat.label}</div>
+                <div className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: stat.color }}>{stat.value}</div>
               </div>
-            </div>
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Jogadores</div>
-              <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--white)' }}>5 por lineup</div>
-            </div>
-            {isBlast && (
-              <div>
-                <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Prize Pool</div>
-                <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--gold)' }}>$250,000</div>
-              </div>
-            )}
+            ))}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)' }}>
-              32 times · Malta · Jul 21–Ago 2
-            </span>
-            <Link
-              href={`/fantasy/${c.id}/mercado`}
-              className="btn-green"
-              style={{ borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.04em' }}
-            >
-              {c.status === 'finished' ? 'Ver resultado' : 'Montar lineup'}
+          {/* Dates */}
+          {isBlast && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '7px 10px', background: 'rgba(255,107,0,.06)', border: '1px solid rgba(255,107,0,.15)', borderRadius: 8 }}>
+              <span style={{ fontSize: 12 }}>📅</span>
+              <span style={{ fontSize: 12, color: 'var(--text2)', fontWeight: 600 }}>21 Jul – 2 Ago 2026 · BLAST Studios Malta</span>
+            </div>
+          )}
+
+          {/* CTA */}
+          <Link
+            href={`/fantasy/${c.id}/mercado`}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              width: '100%', padding: '12px',
+              background: c.status === 'finished'
+                ? 'var(--bg3)'
+                : `linear-gradient(90deg, ${accentColor}, ${isBlast ? '#ff9500' : '#00d4ff'})`,
+              color: c.status === 'finished' ? 'var(--text2)' : '#000',
+              fontFamily: 'inherit', fontWeight: 900, fontSize: 14,
+              letterSpacing: '.06em', textTransform: 'uppercase', textDecoration: 'none',
+              borderRadius: 10, border: c.status === 'finished' ? '1px solid var(--border)' : 'none',
+              boxShadow: c.status !== 'finished' ? `0 0 20px ${accentColor}40` : 'none',
+              transition: 'all .2s',
+            }}
+          >
+            {c.status !== 'finished' && <span style={{ fontSize: 16 }}>⚡</span>}
+            {cta}
+          </Link>
+          {c.status !== 'finished' && (
+            <Link href={`/fantasy/${c.id}/ranking`} style={{ display: 'block', textAlign: 'center', marginTop: 8, fontSize: 12, color: 'var(--text3)', textDecoration: 'none', fontWeight: 600 }}>
+              Ver ranking →
             </Link>
-          </div>
+          )}
         </div>
       </div>
     )
