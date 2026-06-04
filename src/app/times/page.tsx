@@ -2,20 +2,40 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { TeamLogo } from '@/components/teams/team-logo'
 
-// Logos confirmados via Liquipedia (proxy server-side)
+// Logos de todos os 32 times via Liquipedia proxy
+const P = '/api/img/lp/thumb'
 const TEAM_LOGOS: Record<string, string> = {
-  'Vitality':          '/api/img/lp/thumb/e/e4/Team_Vitality_2023_lightmode.png/120px-Team_Vitality_2023_lightmode.png',
-  'MOUZ':              '/api/img/lp/thumb/a/a5/MOUZ_2021_full_allmode.png/120px-MOUZ_2021_full_allmode.png',
-  'Spirit':            '/api/img/lp/thumb/6/66/Team_Spirit_2022_lightmode.png/120px-Team_Spirit_2022_lightmode.png',
-  'FaZe':              '/api/img/lp/thumb/f/f9/FaZe_Esports_2026_lightmode.png/120px-FaZe_Esports_2026_lightmode.png',
-  'FURIA':             '/api/img/lp/thumb/a/aa/FURIA_Esports_allmode.png/120px-FURIA_Esports_allmode.png',
-  'Natus Vincere':     '/api/img/lp/thumb/3/3f/Natus_Vincere_2021_lightmode.png/120px-Natus_Vincere_2021_lightmode.png',
-  'Astralis':          '/api/img/lp/thumb/b/b5/Astralis_2020_full_allmode.png/120px-Astralis_2020_full_allmode.png',
-  'G2':                '/api/img/lp/thumb/2/27/G2_Esports_2020_full_lightmode.png/120px-G2_Esports_2020_full_lightmode.png',
-  'Team Liquid':       '/api/img/lp/thumb/f/f5/Team_Liquid_2024_full_lightmode.png/120px-Team_Liquid_2024_full_lightmode.png',
-  'HEROIC':            '/api/img/lp/thumb/0/0d/HEROIC_2024_allmode.png/120px-HEROIC_2024_allmode.png',
-  'Ninjas in Pyjamas': '/api/img/lp/thumb/4/42/Ninjas_in_Pyjamas_2021_full_lightmode.png/120px-Ninjas_in_Pyjamas_2021_full_lightmode.png',
-  'Virtus.pro':        '/api/img/lp/thumb/7/74/Virtus.pro_2022_lightmode.png/120px-Virtus.pro_2022_lightmode.png',
+  'Vitality':          `${P}/e/e4/Team_Vitality_2023_lightmode.png/120px-Team_Vitality_2023_lightmode.png`,
+  'MOUZ':              `${P}/a/a5/MOUZ_2021_full_allmode.png/120px-MOUZ_2021_full_allmode.png`,
+  'The MongolZ':       `${P}/2/2b/The_MongolZ_2024_03_allmode.png/120px-The_MongolZ_2024_03_allmode.png`,
+  'Spirit':            `${P}/6/66/Team_Spirit_2022_lightmode.png/120px-Team_Spirit_2022_lightmode.png`,
+  'Aurora':            `${P}/3/32/Aurora_Gaming_2025_full_allmode.png/120px-Aurora_Gaming_2025_full_allmode.png`,
+  'FaZe':              `${P}/f/f9/FaZe_Esports_2026_lightmode.png/120px-FaZe_Esports_2026_lightmode.png`,
+  'FURIA':             `${P}/a/aa/FURIA_Esports_allmode.png/120px-FURIA_Esports_allmode.png`,
+  'Natus Vincere':     `${P}/3/3f/Natus_Vincere_2021_lightmode.png/120px-Natus_Vincere_2021_lightmode.png`,
+  'paiN':              `${P}/6/6f/PaiN_Gaming_2023_lightmode.png/120px-PaiN_Gaming_2023_lightmode.png`,
+  'Astralis':          `${P}/b/b5/Astralis_2020_full_allmode.png/120px-Astralis_2020_full_allmode.png`,
+  'G2':                `${P}/2/27/G2_Esports_2020_full_lightmode.png/120px-G2_Esports_2020_full_lightmode.png`,
+  'Legacy':            `${P}/3/34/Legacy_allmode.png/120px-Legacy_allmode.png`,
+  'Virtus.pro':        `${P}/7/74/Virtus.pro_2022_lightmode.png/120px-Virtus.pro_2022_lightmode.png`,
+  'Team Liquid':       `${P}/f/f5/Team_Liquid_2024_full_lightmode.png/120px-Team_Liquid_2024_full_lightmode.png`,
+  'HEROIC':            `${P}/0/0d/HEROIC_2024_allmode.png/120px-HEROIC_2024_allmode.png`,
+  'Ninjas in Pyjamas': `${P}/4/42/Ninjas_in_Pyjamas_2021_full_lightmode.png/120px-Ninjas_in_Pyjamas_2021_full_lightmode.png`,
+  'MIBR':              `${P}/8/85/MIBR_2018_lightmode.png/120px-MIBR_2018_lightmode.png`,
+  'Complexity':        `${P}/c/c7/Complexity_2025_full_allmode.png/120px-Complexity_2025_full_allmode.png`,
+  'B8':                `${P}/c/c6/B8_lightmode.png/120px-B8_lightmode.png`,
+  'BetBoom':           `${P}/5/5b/BetBoom_Team_2024_allmode.png/120px-BetBoom_Team_2024_allmode.png`,
+  'Nemiga':            `${P}/b/bb/Nemiga_Gaming_2020_temporary.png/120px-Nemiga_Gaming_2020_temporary.png`,
+  'BIG':               `${P}/4/4c/BIG_2020_lightmode.png/120px-BIG_2020_lightmode.png`,
+  'FlyQuest':          `${P}/b/b2/FlyQuest_2024_full_lightmode.png/120px-FlyQuest_2024_full_lightmode.png`,
+  'Passion UA':        `${P}/4/49/Passion_UA_2025_lightmode.png/120px-Passion_UA_2025_lightmode.png`,
+  'OG':                `${P}/7/7b/OG_2026_allmode.png/120px-OG_2026_allmode.png`,
+  'ECSTATIC':          `${P}/9/93/ECSTATIC_2023_allmode.png/120px-ECSTATIC_2023_allmode.png`,
+  'fnatic':            `${P}/1/10/Fnatic_2020_full_lightmode.png/120px-Fnatic_2020_full_lightmode.png`,
+  'NRG':               `${P}/5/57/NRG_2024_lightmode.png/120px-NRG_2024_lightmode.png`,
+  'FUT':               `${P}/9/90/Futbolist_2021_lightmode.png/120px-Futbolist_2021_lightmode.png`,
+  'Rare Atom':         `${P}/5/5d/Rare_Atom_full_allmode.png/120px-Rare_Atom_full_allmode.png`,
+  'ENCE':              `${P}/b/ba/ENCE_2020_full_lightmode.png/120px-ENCE_2020_full_lightmode.png`,
 }
 
 // Cores oficiais dos times (fallback)
