@@ -58,17 +58,20 @@ export interface Database {
           name: string
           logo_url: string | null
           country: string | null
+          hltv_id: number | null
         }
         Insert: {
           id?: string
           name: string
           logo_url?: string | null
           country?: string | null
+          hltv_id?: number | null
         }
         Update: {
           name?: string
           logo_url?: string | null
           country?: string | null
+          hltv_id?: number | null
         }
         Relationships: []
       }
@@ -80,6 +83,7 @@ export interface Database {
           role: string | null
           price_lc: number
           eliminated: boolean
+          hltv_id: number | null
         }
         Insert: {
           id?: string
@@ -88,6 +92,7 @@ export interface Database {
           role?: string | null
           price_lc?: number
           eliminated?: boolean
+          hltv_id?: number | null
         }
         Update: {
           nickname?: string
@@ -95,6 +100,7 @@ export interface Database {
           role?: string | null
           price_lc?: number
           eliminated?: boolean
+          hltv_id?: number | null
         }
         Relationships: []
       }
