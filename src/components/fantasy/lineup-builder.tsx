@@ -32,10 +32,10 @@ const ROLE_STYLE: Record<string, { bg: string; color: string; label: string }> =
 function formatLC(v: number) { return v.toLocaleString('pt-BR') }
 
 function playerPhotoUrl(hltv_id: number | null) {
-  return hltv_id ? `https://img-cdn.hltv.org/playerbodyshot/${hltv_id}.png` : null
+  return hltv_id ? `/api/img/player/${hltv_id}` : null
 }
 function teamLogoUrl(hltv_id: number | null) {
-  return hltv_id ? `https://img-cdn.hltv.org/teamlogo/${hltv_id}.svg` : null
+  return hltv_id ? `/api/img/team/${hltv_id}` : null
 }
 
 function RoleBadge({ role }: { role: string | null }) {
@@ -345,7 +345,7 @@ export function LineupBuilder({ championshipId, roundId, roundName }: { champion
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
           <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text2)' }}>Minha Lineup</span>
-            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{lineup.length}/{MAX_PLAYERS}</span>
+            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{roundName} · {lineup.length}/{MAX_PLAYERS}</span>
           </div>
 
           <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
