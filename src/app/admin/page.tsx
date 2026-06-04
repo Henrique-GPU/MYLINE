@@ -358,7 +358,7 @@ export default function AdminPage() {
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: p.eliminated ? 'rgba(239,68,68,.08)' : 'var(--bg2)', border: `1px solid ${p.eliminated ? 'rgba(239,68,68,.2)' : 'var(--border)'}`, borderRadius: 7, cursor: 'pointer' }} onClick={() => toggleEliminated(p.id, p.eliminated)}>
                     <div style={{ width: 12, height: 12, borderRadius: 2, background: p.eliminated ? 'var(--red)' : 'var(--border)', border: '1px solid var(--border2)', flexShrink: 0 }} />
                     <span style={{ fontSize: 12, fontWeight: 600, color: p.eliminated ? 'var(--red)' : 'var(--text2)' }}>{p.nickname}</span>
-                    <span style={{ fontSize: 10, color: 'var(--text3)', marginLeft: 'auto' }}>{teamsById[p.team_id]?.name?.slice(0,4)}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text3)', marginLeft: 'auto' }}>{p.team_id ? teamsById[p.team_id]?.name?.slice(0,4) : ''}</span>
                   </div>
                 ))}
               </div>
