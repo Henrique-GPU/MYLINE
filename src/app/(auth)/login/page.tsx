@@ -63,7 +63,7 @@ function LoginForm() {
         )}
         {urlError && (
           <div style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 8, padding: '10px 12px', marginBottom: 16, fontSize: 12, color: 'var(--red)' }}>
-            Erro Steam: {urlError}
+            Erro Steam: {urlError} {searchParams.get('detail') && `— ${searchParams.get('detail')}`}
           </div>
         )}
 
