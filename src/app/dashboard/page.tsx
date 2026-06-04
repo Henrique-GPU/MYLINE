@@ -2,6 +2,16 @@ import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getEventMeta, getBannerUrl } from '@/lib/events'
+import { MinhaLineup } from '@/components/arena/minha-lineup'
+import { ProximaRodada } from '@/components/arena/proxima-rodada'
+
+const NOTICIAS = [
+  { icon: '🏆', title: 'donk é eleito MVP do BLAST Bounty S1', time: '2h atrás', hot: true },
+  { icon: '🔥', title: 'Vitality vence Spirit em thriller BO3', time: '4h atrás', hot: true },
+  { icon: '📊', title: 'ZywOo mantém sequência de 8 MVPs consecutivos', time: '6h atrás', hot: false },
+  { icon: '🎯', title: 'FURIA contrata YEKINDAR para o BLAST S2', time: '8h atrás', hot: false },
+  { icon: '⚡', title: 'ESL Pro League confirma Katowice para outubro', time: '1d atrás', hot: false },
+]
 
 // ── Mock performance data (substituir por dados reais quando disponível) ──
 const TOP_PICKS = [
@@ -160,6 +170,28 @@ export default async function ArenaPage() {
             </div>
           ))}
         </div>
+
+        {/* ══════════════════════════════════════════
+            MINHA LINEUP + PRÓXIMA RODADA
+        ══════════════════════════════════════════ */}
+        {championships && championships.length > 0 && (() => {
+          const activeChamp = championships.find(c => c.status === 'active') ?? championships.find(c => c.status === 'upcoming') ?? championships[0]
+          const meta = getEventMeta(activeChamp.name)
+          const mercadoHref = `/fantasy/${activeChamp.id}/mercado`
+          const roundId = 'b0000000-0000-0000-0000-000000000001' // Fase Online
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
+              <MinhaLineup championshipId={activeChamp.id} roundId={roundId} mercadoHref={mercadoHref} />
+              <ProximaRodada
+                championshipId={activeChamp.id}
+                championshipName={activeChamp.name}
+                roundName="Fase Online"
+                accentColor={meta.accentColor}
+                mercadoHref={mercadoHref}
+              />
+            </div>
+          )
+        })()}
 
         {/* ══════════════════════════════════════════
             MAIN GRID: TOP PICKS | AGENDA | MERCADO
@@ -337,6 +369,83 @@ export default async function ArenaPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════
+            SUAS LIGAS + MINHA FRANQUIA + NOTÍCIAS
+        ══════════════════════════════════════════ */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
+
+          {/* SUAS LIGAS */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+            <div style={{ height: 3, background: 'linear-gradient(90deg,var(--purple),var(--blue))' }} />
+            <div style={{ padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--white)', textTransform: 'uppercase' }}>🏆 Suas Ligas</span>
+                <Link href="/ligas" style={{ fontSize: 10, color: 'var(--purple)', textDecoration: 'none', fontWeight: 700 }}>Ver todas →</Link>
+              </div>
+              {[
+                { name: 'Amigos do CS', pos: 3, n: 18 },
+                { name: 'Empresa XPTO', pos: 1, n: 27 },
+                { name: 'Arena dos Pratas', pos: 5, n: 41 },
+              ].map(liga => (
+                <Link key={liga.name} href="/ligas" style={{ textDecoration: 'none', display: 'block', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                    <span style={{ fontSize: 12 }}>{liga.pos === 1 ? '🥇' : liga.pos <= 3 ? '🥈' : '🏅'}</span>
+                    <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--white)' }}>{liga.name}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text3)' }}>#{liga.pos} · {liga.n}</span>
+                  </div>
+                </Link>
+              ))}
+              <Link href="/ligas/criar" style={{ display: 'block', textAlign: 'center', marginTop: 8, padding: '8px', background: 'rgba(139,92,246,.1)', border: '1px solid rgba(139,92,246,.25)', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'var(--purple)', textDecoration: 'none' }}>
+                ➕ Criar Liga
+              </Link>
+            </div>
+          </div>
+
+          {/* MINHA FRANQUIA */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid rgba(255,200,50,.2)', borderRadius: 14, overflow: 'hidden' }}>
+            <div style={{ height: 3, background: 'linear-gradient(90deg,var(--gold),var(--yellow))' }} />
+            <div style={{ padding: '14px 16px' }}>
+              <div style={{ marginBottom: 14 }}>
+                <span className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--gold)', textTransform: 'uppercase' }}>💎 Minha Franquia</span>
+              </div>
+              {[
+                { label: 'Line Coins',      value: '100.000',   color: 'var(--green)', icon: '💰' },
+                { label: 'Valor da Equipe', value: '89.400',    color: 'var(--cyan)',  icon: '📊' },
+                { label: 'Valorização',     value: '+8%',       color: 'var(--green)', icon: '📈' },
+                { label: 'Patrimônio',      value: '189.400',   color: 'var(--gold)',  icon: '🏦' },
+              ].map(item => (
+                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text3)' }}>{item.icon} {item.label}</span>
+                  <span className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.value}</span>
+                </div>
+              ))}
+              <Link href="/perfil" style={{ display: 'block', textAlign: 'center', marginTop: 10, fontSize: 11, color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
+                Ver meu perfil completo →
+              </Link>
+            </div>
+          </div>
+
+          {/* NOTÍCIAS */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+            <div style={{ height: 3, background: 'linear-gradient(90deg,var(--cyan),var(--blue))' }} />
+            <div style={{ padding: '14px 16px' }}>
+              <span className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--white)', textTransform: 'uppercase', marginBottom: 12, display: 'block' }}>📰 Notícias CS2</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {NOTICIAS.map((n, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '8px 0', borderBottom: i < NOTICIAS.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{n.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, color: n.hot ? 'var(--white)' : 'var(--text2)', fontWeight: n.hot ? 600 : 400, lineHeight: 1.4 }}>{n.title}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{n.time}</div>
+                    </div>
+                    {n.hot && <span style={{ fontSize: 7, fontWeight: 700, color: 'var(--red)', background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 4, padding: '1px 4px', flexShrink: 0, marginTop: 2 }}>HOT</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

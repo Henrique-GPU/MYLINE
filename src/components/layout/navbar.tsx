@@ -9,6 +9,7 @@ import type { User } from '@supabase/supabase-js'
 const NAV_LINKS = [
   { href: '/dashboard',  label: 'Arena',        icon: '⚡' },
   { href: '/fantasy',    label: 'Campeonatos',   icon: '🏆' },
+  { href: '/ligas',      label: 'Ligas',         icon: '🏅' },
   { href: '/times',      label: 'Times',         icon: '🛡️' },
   { href: '/jogadores',  label: 'Jogadores',     icon: '👤' },
   { href: '/comunidade', label: 'Comunidade',    icon: '🎮' },

@@ -22,5 +22,6 @@ export const config = {
     '/times/:path*',
     '/jogadores/:path*',
     '/perfil/:path*',
+    '/ligas/:path*',
   ],
 }
