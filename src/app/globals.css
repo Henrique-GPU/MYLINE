@@ -46,6 +46,15 @@
   --font-barlow:   var(--font-barlow);
   --font-condensed: var(--font-condensed);
   --font-tech:     var(--font-tech);
+
+  /* ── aliases para compatibilidade com páginas antigas ── */
+  --color-background:   var(--bg);
+  --color-foreground:   var(--text);
+  --color-surface:      var(--bg2);
+  --color-surface-2:    var(--bg3);
+  --color-primary:      var(--green);
+  --color-primary-dark: var(--green2);
+  --color-accent:       var(--orange);
 }
 
 /* ── BASE ── */
