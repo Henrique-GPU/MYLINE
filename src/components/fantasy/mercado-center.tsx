@@ -118,6 +118,24 @@ export function MercadoCenter({
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
+
+    async function loadLineup(merged: PlayerWithPrice[]) {
+      // Aguarda sessão estar pronta antes de carregar lineup
+      let user = (await supabase.auth.getUser()).data.user
+      if (!user) {
+        // Tenta mais uma vez após pequena espera (sessão pode ainda estar carregando)
+        await new Promise(r => setTimeout(r, 800))
+        user = (await supabase.auth.getUser()).data.user
+      }
+      if (!user) return
+
+      const { data: ex } = await supabase.from('lineups').select('id').eq('user_id', user.id).eq('round_id', roundId).single()
+      if (!ex) return
+
+      const { data: slots } = await supabase.from('lineup_players').select('player_id, is_captain').eq('lineup_id', ex.id)
+      setLineup((slots ?? []).map(s => { const pl = merged.find(p => p.player_id === s.player_id); return pl ? { player: pl, is_captain: s.is_captain } : null }).filter(Boolean) as Slot[])
+    }
+
     async function load() {
       setLoading(true)
       const { data: prices } = await supabase.from('player_prices').select('player_id, price, price_change').eq('round_id', roundId).order('price', { ascending: false })
@@ -147,17 +165,10 @@ export function MercadoCenter({
         }
       })
       setPlayers(merged)
-
-      // Existing lineup
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: ex } = await supabase.from('lineups').select('id').eq('user_id', user.id).eq('round_id', roundId).single()
-        if (ex) {
-          const { data: slots } = await supabase.from('lineup_players').select('player_id, is_captain').eq('lineup_id', ex.id)
-          setLineup((slots ?? []).map(s => { const pl = merged.find(p => p.player_id === s.player_id); return pl ? { player: pl, is_captain: s.is_captain } : null }).filter(Boolean) as Slot[])
-        }
-      }
       setLoading(false)
+
+      // Carrega lineup existente com retry para aguardar sessão
+      await loadLineup(merged)
     }
     load()
   }, [roundId])
