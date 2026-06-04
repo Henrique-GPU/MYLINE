@@ -71,7 +71,7 @@ export default async function Home() {
             )}
 
             <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 'clamp(40px, 6vw, 72px)', letterSpacing: '.02em', textTransform: 'uppercase', lineHeight: .9, marginBottom: 20, color: 'var(--white)' }}>
-              O Fantasy do<br />
+              A Liga do<br />
               <span className="text-gradient-green">CS2</span><br />
               Brasileiro
             </h1>
@@ -169,7 +169,7 @@ export default async function Home() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
             <p className="font-condensed" style={{ fontWeight: 900, fontSize: 32, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 8 }}>Como funciona</p>
-            <p style={{ fontSize: 14, color: 'var(--text3)', maxWidth: 500, margin: '0 auto' }}>Em 3 passos simples você está competindo no fantasy mais hardcore do CS2 brasileiro</p>
+            <p style={{ fontSize: 14, color: 'var(--text3)', maxWidth: 500, margin: '0 auto' }}>Em 3 passos simples você está competindo na disputa mais hardcore do CS2 brasileiro</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
             {[
@@ -264,7 +264,7 @@ export default async function Home() {
           <span style={{ fontSize: 11, color: 'var(--text3)' }}>© 2026</span>
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
-          {[['Times', '/times'], ['Jogadores', '/jogadores'], ['Fantasy', '/fantasy']].map(([l, h]) => (
+          {[['Times', '/times'], ['Jogadores', '/jogadores'], ['Campeonatos', '/fantasy']].map(([l, h]) => (
             <Link key={h} href={h} style={{ fontSize: 12, color: 'var(--text3)', textDecoration: 'none' }}>{l}</Link>
           ))}
         </div>

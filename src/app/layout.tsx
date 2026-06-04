@@ -24,7 +24,7 @@ const shareTechMono = Share_Tech_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'MyLine — Fantasy CS2',
+  title: 'MyLine CS2 — Lineup & Campeonatos',
   description: 'Monte sua lineup, dispute campeonatos e acompanhe as stats do CS2 brasileiro.',
 }
 

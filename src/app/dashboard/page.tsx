@@ -35,9 +35,9 @@ export default async function DashboardPage() {
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 26, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 3 }}>
-            Dashboard
+            Arena
           </h1>
-          <p style={{ color: 'var(--text3)', fontSize: 13 }}>Bem-vindo ao MyLine CS2 — sua plataforma de fantasy</p>
+          <p style={{ color: 'var(--text3)', fontSize: 13 }}>Bem-vindo ao MyLine CS2 — central de operações</p>
         </div>
 
         {/* Quick stats */}

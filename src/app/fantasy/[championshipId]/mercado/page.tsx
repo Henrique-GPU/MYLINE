@@ -40,7 +40,7 @@ export default async function MercadoPage({
     <AppLayout>
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="flex items-center gap-2 text-sm text-foreground/40 mb-6">
-          <Link href="/fantasy" className="hover:text-foreground/70 transition-colors">Fantasy</Link>
+          <Link href="/fantasy" className="hover:text-foreground/70 transition-colors">Campeonatos</Link>
           <span>›</span>
           <span className="text-foreground/70">{championship.name}</span>
           <span>›</span>

@@ -48,37 +48,47 @@ export default async function FantasyPage() {
       >
         {/* Banner */}
         <div style={{
-          height: 110, position: 'relative', overflow: 'hidden',
-          background: isBlast
-            ? 'linear-gradient(135deg, #0a0500 0%, #1a0800 40%, #0d0400 100%)'
-            : BANNERS[c.status] ?? BANNERS.finished,
+          height: 130, position: 'relative', overflow: 'hidden',
           borderBottom: '1px solid var(--border)',
-          display: 'flex', alignItems: 'center', padding: '0 18px',
+          background: isBlast
+            ? 'linear-gradient(180deg, #02010a 0%, #0d0300 40%, #1a0500 70%, #2a0800 100%)'
+            : BANNERS[c.status] ?? BANNERS.finished,
         }}>
           {isBlast && (
             <>
-              {/* Grid */}
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,107,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.05) 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
-              {/* Glow */}
-              <div style={{ position: 'absolute', top: -20, left: '30%', width: 200, height: 100, background: 'radial-gradient(ellipse, rgba(255,107,0,.15), transparent 70%)', pointerEvents: 'none' }} />
-              {/* BLAST text */}
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div className="font-condensed" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(255,107,0,.7)', marginBottom: 2 }}>
-                  BLAST PREMIER
+              {/* Arena floor glow — cone of orange light from bottom */}
+              <div style={{ position: 'absolute', bottom: -20, left: '50%', transform: 'translateX(-50%)', width: '120%', height: 120, background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,80,0,.55) 0%, rgba(255,140,0,.2) 40%, transparent 75%)', animation: 'arena-glow 3s ease-in-out infinite' }} />
+              {/* Stage spotlight left */}
+              <div style={{ position: 'absolute', bottom: 0, left: '15%', width: 80, height: 130, background: 'linear-gradient(to top, rgba(255,100,0,.35), transparent)', transform: 'skewX(-20deg)', transformOrigin: 'bottom' }} />
+              {/* Stage spotlight right */}
+              <div style={{ position: 'absolute', bottom: 0, right: '15%', width: 80, height: 130, background: 'linear-gradient(to top, rgba(255,150,0,.3), transparent)', transform: 'skewX(20deg)', transformOrigin: 'bottom' }} />
+              {/* Stage spotlight center */}
+              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 140, height: 130, background: 'linear-gradient(to top, rgba(255,200,0,.4), transparent)' }} />
+              {/* Diamond pattern overlay */}
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(45deg, rgba(255,107,0,.04) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,107,0,.04) 25%, transparent 25%)', backgroundSize: '16px 16px', opacity: .8 }} />
+              {/* Top dark vignette */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(to bottom, rgba(2,1,10,.9), transparent)' }} />
+              {/* Crowd silhouette */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 28, background: 'linear-gradient(to top, rgba(2,1,10,.95) 0%, rgba(5,2,15,.6) 60%, transparent 100%)' }} />
+
+              {/* Content */}
+              <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 18px' }}>
+                <div className="font-condensed" style={{ fontWeight: 700, fontSize: 9, letterSpacing: '.3em', textTransform: 'uppercase', color: 'rgba(255,140,0,.8)', marginBottom: 3 }}>
+                  ◈ BLAST PREMIER ◈
                 </div>
-                <div className="font-condensed text-gradient-orange" style={{ fontWeight: 900, fontSize: 22, letterSpacing: '.04em', textTransform: 'uppercase', lineHeight: 1 }}>
+                <div className="font-condensed text-gradient-orange" style={{ fontWeight: 900, fontSize: 26, letterSpacing: '.03em', textTransform: 'uppercase', lineHeight: .95 }}>
                   Bounty 2026
                 </div>
-                <div className="font-condensed" style={{ fontWeight: 700, fontSize: 13, color: 'rgba(255,200,50,.8)', letterSpacing: '.1em', marginTop: 2 }}>
-                  SEASON 2 · MALTA
+                <div className="font-condensed" style={{ fontWeight: 800, fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'rgba(255,200,50,.9)', marginTop: 4 }}>
+                  SEASON 2 · MALTA · JUL 21 – AGO 2
                 </div>
               </div>
-              {/* Trophy */}
-              <div style={{ position: 'absolute', right: 50, top: '50%', transform: 'translateY(-50%)', fontSize: 52, opacity: .15, filter: 'blur(1px)' }}>🏆</div>
+              {/* Glowing orb right */}
+              <div style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 100, height: 100, background: 'radial-gradient(circle, rgba(255,100,0,.2), transparent 70%)', zIndex: 1 }} />
             </>
           )}
           {!isBlast && (
-            <div style={{ fontSize: 40, margin: '0 auto' }}>🏆</div>
+            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏆</div>
           )}
           <span style={{
             position: 'absolute', top: 10, right: 10,
@@ -112,11 +122,17 @@ export default async function FantasyPage() {
               <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Jogadores</div>
               <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--white)' }}>5 por lineup</div>
             </div>
+            {isBlast && (
+              <div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Prize Pool</div>
+                <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--gold)' }}>$250,000</div>
+              </div>
+            )}
           </div>
 
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)' }}>
-              32 times · 160 jogadores
+              32 times · Malta · Jul 21–Ago 2
             </span>
             <Link
               href={`/fantasy/${c.id}/mercado`}
@@ -137,7 +153,7 @@ export default async function FantasyPage() {
 
         <div style={{ marginBottom: 24 }}>
           <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 26, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 3 }}>
-            Fantasy Oficial
+            Campeonatos Oficiais
           </h1>
           <p style={{ color: 'var(--text3)', fontSize: 13 }}>Monte sua lineup com 100.000 LC e dispute o ranking a cada rodada.</p>
         </div>

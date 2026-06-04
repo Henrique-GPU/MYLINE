@@ -47,7 +47,7 @@
   --font-condensed: var(--font-condensed);
   --font-tech:     var(--font-tech);
 
-  /* ── aliases para compatibilidade com páginas antigas ── */
+  /* aliases para compatibilidade */
   --color-background:   var(--bg);
   --color-foreground:   var(--text);
   --color-surface:      var(--bg2);
@@ -89,8 +89,20 @@ body {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: none; }
 }
+@keyframes pulse-ring {
+  0%   { transform: scale(1);    opacity: 1; }
+  100% { transform: scale(1.4);  opacity: 0; }
+}
+@keyframes coin-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+@keyframes arena-glow {
+  0%, 100% { opacity: .6; }
+  50%       { opacity: 1; }
+}
 
-/* ── UTILITY CLASSES ── */
+/* ── UTILITIES ── */
 .font-condensed { font-family: var(--font-condensed), 'Barlow Condensed', sans-serif; }
 .font-tech      { font-family: var(--font-tech), 'Share Tech Mono', monospace; }
 
@@ -127,34 +139,17 @@ body {
 }
 .btn-orange:hover { transform: translateY(-1px); }
 
-.card-green-top::before {
-  content: '';
-  display: block;
-  height: 2px;
-  background: linear-gradient(90deg, var(--green), var(--cyan));
-  margin: -1px -1px 0;
-}
-
-.live-badge {
-  animation: blink .9s ease-in-out infinite;
-}
-
-.page-animate {
-  animation: fadein .2s ease;
-}
-
-/* ── HOVER CARDS ── */
-.hover-card {
-  transition: border-color .2s, transform .2s;
-}
-.hover-card:hover {
-  transform: translateY(-2px);
-}
-.hover-card-green:hover  { border-color: var(--border2) !important; }
-.hover-card-orange:hover { border-color: rgba(249,115,22,.3) !important; }
-
 /* ── STATUS BADGES ── */
 .s-open { background: rgba(0,240,117,.15); color: var(--green);  border: 1px solid rgba(0,240,117,.3); border-radius: 20px; padding: 3px 9px; }
 .s-live { background: rgba(239,68,68,.15);  color: var(--red);   border: 1px solid rgba(239,68,68,.3);  border-radius: 20px; padding: 3px 9px; animation: blink .9s ease-in-out infinite; }
 .s-soon { background: rgba(245,158,11,.12); color: var(--yellow); border: 1px solid rgba(245,158,11,.3); border-radius: 20px; padding: 3px 9px; }
 .s-done { background: rgba(255,255,255,.04); color: var(--text3); border: 1px solid var(--border); border-radius: 20px; padding: 3px 9px; }
+
+/* ── HOVER CARDS ── */
+.hover-card { transition: border-color .2s, transform .2s; }
+.hover-card:hover { transform: translateY(-2px); }
+.hover-card-green:hover  { border-color: var(--border2) !important; }
+.hover-card-orange:hover { border-color: rgba(249,115,22,.3) !important; }
+
+/* ── PAGE ANIMATION ── */
+.page-animate { animation: fadein .2s ease; }
