@@ -167,8 +167,23 @@ export function MercadoCenter({
   const projection = lineup.reduce((s, sl) => s + (sl.is_captain ? sl.player.projection * 2 : sl.player.projection), 0)
   const avgChange = lineup.length > 0 ? lineup.reduce((s, sl) => s + sl.player.price_change, 0) / lineup.length : 0
 
+  // ── Regra: máx. 2 jogadores por time ──
+  function teamCount(teamId: string | null) {
+    if (!teamId) return 0
+    return lineup.filter(s => s.player.team?.id === teamId).length
+  }
+  function canAddPlayer(p: PlayerWithPrice): { ok: boolean; reason: string } {
+    if (inLineup(p.player_id))             return { ok: false, reason: 'Já na lineup' }
+    if (lineup.length >= MAX)              return { ok: false, reason: 'Lineup cheia (5/5)' }
+    if (remaining < p.price)               return { ok: false, reason: 'Saldo insuficiente' }
+    if (p.team?.id && teamCount(p.team.id) >= 2)
+                                           return { ok: false, reason: `Máx. 2 de ${p.team.name}` }
+    return { ok: true, reason: '' }
+  }
+
   function add(p: PlayerWithPrice) {
-    if (lineup.length >= MAX || lineup.some(s => s.player.player_id === p.player_id) || remaining < p.price) return
+    const { ok } = canAddPlayer(p)
+    if (!ok) return
     setLineup(prev => [...prev, { player: p, is_captain: false }])
     setSelectedPlayer(null)
   }
@@ -325,7 +340,8 @@ export function MercadoCenter({
             ) : filtered.map((p, i) => {
               const color = ROLE_COLOR[p.role ?? ''] ?? '#5a6e90'
               const added = inLineup(p.player_id)
-              const canAdd = !added && lineup.length < MAX && remaining >= p.price
+              const { ok: canAdd, reason: blockReason } = canAddPlayer(p)
+              const isTeamFull = !added && p.team?.id ? teamCount(p.team.id) >= 2 : false
               const isSelected = selectedPlayer?.player_id === p.player_id
               return (
                 <div key={p.player_id}
@@ -363,13 +379,19 @@ export function MercadoCenter({
                   <span className="font-tech" style={{ fontSize: 11, color: p.ownership >= 40 ? 'var(--orange)' : 'var(--text3)', textAlign: 'right' }}>{p.ownership}%</span>
                   {/* Button */}
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button onClick={e => { e.stopPropagation(); added ? remove(p.player_id) : add(p) }} disabled={!added && !canAdd} style={{
-                      width: 26, height: 26, borderRadius: 5, cursor: added || canAdd ? 'pointer' : 'not-allowed',
-                      background: added ? 'rgba(239,68,68,.08)' : canAdd ? 'rgba(0,240,117,.08)' : 'transparent',
-                      border: added ? '1px solid rgba(239,68,68,.25)' : canAdd ? '1px solid rgba(0,240,117,.25)' : '1px solid var(--border)',
-                      color: added ? 'var(--red)' : canAdd ? 'var(--green)' : 'var(--text3)',
-                      fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit',
-                    }}>{added ? '−' : '+'}</button>
+                    <div style={{ position: 'relative' }}>
+                      <button onClick={e => { e.stopPropagation(); added ? remove(p.player_id) : add(p) }} disabled={!added && !canAdd}
+                        title={!added && !canAdd ? blockReason : ''}
+                        style={{
+                          width: 26, height: 26, borderRadius: 5, cursor: added || canAdd ? 'pointer' : 'not-allowed',
+                          background: added ? 'rgba(239,68,68,.08)' : canAdd ? 'rgba(0,240,117,.08)' : isTeamFull ? 'rgba(245,158,11,.08)' : 'transparent',
+                          border: added ? '1px solid rgba(239,68,68,.25)' : canAdd ? '1px solid rgba(0,240,117,.25)' : isTeamFull ? '1px solid rgba(245,158,11,.3)' : '1px solid var(--border)',
+                          color: added ? 'var(--red)' : canAdd ? 'var(--green)' : isTeamFull ? 'var(--yellow)' : 'var(--text3)',
+                          fontSize: isTeamFull ? 10 : 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit',
+                        }}>
+                        {added ? '−' : isTeamFull ? '2×' : '+'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -400,7 +422,8 @@ export function MercadoCenter({
                 {tPlayers.map((p, i) => {
                   const color = ROLE_COLOR[p.role ?? ''] ?? '#5a6e90'
                   const added = inLineup(p.player_id)
-                  const canAdd = !added && lineup.length < MAX && remaining >= p.price
+                  const { ok: canAdd, reason: blockReason } = canAddPlayer(p)
+              const isTeamFull = !added && p.team?.id ? teamCount(p.team.id) >= 2 : false
                   return (
                     <div key={p.player_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: i < tPlayers.length - 1 ? '1px solid var(--border)' : 'none', background: added ? 'rgba(0,240,117,.03)' : 'transparent', borderLeft: added ? '2px solid var(--green)' : '2px solid transparent' }}>
                       <div style={{ width: 4, height: 24, borderRadius: 2, background: color, flexShrink: 0, opacity: .7 }} />
@@ -478,16 +501,29 @@ export function MercadoCenter({
                   </div>
                 </div>
               )}
-              <button onClick={() => inLineup(p.player_id) ? remove(p.player_id) : add(p)} disabled={!inLineup(p.player_id) && (lineup.length >= MAX || remaining < p.price)} style={{
-                width: '100%', padding: '10px',
-                background: inLineup(p.player_id) ? 'rgba(239,68,68,.1)' : lineup.length < MAX && remaining >= p.price ? `linear-gradient(90deg,${color},${color}cc)` : 'var(--bg3)',
-                color: inLineup(p.player_id) ? 'var(--red)' : '#000',
-                fontFamily: 'inherit', fontWeight: 900, fontSize: 13, letterSpacing: '.06em', textTransform: 'uppercase',
-                border: inLineup(p.player_id) ? '1px solid rgba(239,68,68,.25)' : 'none',
-                borderRadius: 9, cursor: inLineup(p.player_id) || (lineup.length < MAX && remaining >= p.price) ? 'pointer' : 'not-allowed',
-              }}>
-                {inLineup(p.player_id) ? '− Remover da Lineup' : lineup.length >= MAX ? '⚠️ Lineup cheia' : remaining < p.price ? '⚠️ Saldo insuficiente' : `⚡ Escalar ${p.nickname}`}
-              </button>
+              {(() => {
+                const added2 = inLineup(p.player_id)
+                const { ok: can2, reason: why2 } = canAddPlayer(p)
+                return (
+                  <>
+                    {!added2 && !can2 && (
+                      <div style={{ background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.2)', borderRadius: 8, padding: '7px 10px', marginBottom: 8, fontSize: 11, color: 'var(--yellow)', textAlign: 'center', fontWeight: 600 }}>
+                        ⚠️ {why2}
+                      </div>
+                    )}
+                    <button onClick={() => added2 ? remove(p.player_id) : add(p)} disabled={!added2 && !can2} style={{
+                      width: '100%', padding: '10px',
+                      background: added2 ? 'rgba(239,68,68,.1)' : can2 ? `linear-gradient(90deg,${color},${color}cc)` : 'var(--bg3)',
+                      color: added2 ? 'var(--red)' : can2 ? '#000' : 'var(--text3)',
+                      fontFamily: 'inherit', fontWeight: 900, fontSize: 13, letterSpacing: '.06em', textTransform: 'uppercase',
+                      border: added2 ? '1px solid rgba(239,68,68,.25)' : can2 ? 'none' : '1px solid var(--border)',
+                      borderRadius: 9, cursor: added2 || can2 ? 'pointer' : 'not-allowed',
+                    }}>
+                      {added2 ? '− Remover da Lineup' : can2 ? `⚡ Escalar ${p.nickname}` : '🚫 Não disponível'}
+                    </button>
+                  </>
+                )
+              })()}
             </div>
           )
         })()}
