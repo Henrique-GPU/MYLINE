@@ -42,8 +42,9 @@ export function Navbar() {
     router.refresh()
   }
 
-  const username = user?.user_metadata?.username ?? user?.email?.split('@')[0] ?? ''
-  const initials = username.slice(0, 2).toUpperCase()
+  const username    = user?.user_metadata?.username ?? user?.email?.split('@')[0] ?? ''
+  const steamAvatar = user?.user_metadata?.steam_avatar as string | undefined
+  const initials    = username.slice(0, 2).toUpperCase()
 
   return (
     <header style={{
@@ -107,15 +108,19 @@ export function Navbar() {
               onClick={() => setMenuOpen(o => !o)}
               style={{
                 width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-                background: 'linear-gradient(135deg, var(--green), var(--cyan))',
+                background: steamAvatar ? 'transparent' : 'linear-gradient(135deg, var(--green), var(--cyan))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontWeight: 900, fontSize: 12, color: '#000', cursor: 'pointer',
                 border: 'none', fontFamily: 'var(--font-condensed)',
                 boxShadow: '0 0 10px rgba(0,240,117,.3)',
+                overflow: 'hidden', padding: 0,
               }}
               title={username}
             >
-              {initials || '?'}
+              {steamAvatar
+                ? <img src={steamAvatar} alt={username} width={34} height={34} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                : (initials || '?')
+              }
             </button>
 
             {menuOpen && (

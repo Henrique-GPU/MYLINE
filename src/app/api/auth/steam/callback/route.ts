@@ -27,8 +27,9 @@ export async function GET(request: Request) {
   let steamName = `player_${steamId.slice(-6)}`
   let steamAvatar = ''
   try {
+    const steamApiKey = (process.env.STEAM_API_KEY ?? '').replace(/^﻿/, '').trim()
     const profileRes = await fetch(
-      `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`
+      `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${steamApiKey}&steamids=${steamId}`
     )
     const profileData = await profileRes.json()
     const player = profileData?.response?.players?.[0]
