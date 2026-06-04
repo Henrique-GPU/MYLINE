@@ -61,6 +61,7 @@ export default async function MercadoPage({
               { icon: meta.flagEmoji, text: meta.location },
               { icon: '💰', text: meta.prize },
               { icon: '🛡️', text: `${meta.teams} times` },
+              { icon: '👥', text: '5.482 participantes' },
             ].map(pill => (
               <div key={pill.text} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 20, padding: '4px 10px' }}>
                 <span style={{ fontSize: 11 }}>{pill.icon}</span>

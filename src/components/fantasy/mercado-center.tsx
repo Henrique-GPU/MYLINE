@@ -243,6 +243,35 @@ export function MercadoCenter({
           </p>
         </div>
 
+        {/* ── PICK DA RODADA ── */}
+        {players.length > 0 && (() => {
+          const pick = players.find(p => p.nickname === 'donk') ?? players[0]
+          const color = ROLE_COLOR[pick.role ?? ''] ?? '#5a6e90'
+          return (
+            <div style={{ marginBottom: 14, background: 'rgba(255,107,0,.06)', border: '1px solid rgba(255,107,0,.2)', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+              onClick={() => setSelectedPlayer(pick)}>
+              <div style={{ flexShrink: 0 }}>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--orange)', marginBottom: 3 }}>🔥 PICK DA RODADA</div>
+                <div className="font-condensed" style={{ fontWeight: 900, fontSize: 18, color: 'var(--white)', letterSpacing: '.03em' }}>{pick.nickname}</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)' }}>{pick.team?.name}</div>
+              </div>
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+                {[
+                  { label: 'Projeção', value: `~${pick.projection} pts`, color: 'var(--cyan)' },
+                  { label: 'Ownership', value: `${pick.ownership}%`, color: 'var(--orange)' },
+                  { label: 'Preço', value: `${formatLC(pick.price)} LC`, color: 'var(--white)' },
+                ].map(s => (
+                  <div key={s.label} style={{ textAlign: 'center' }}>
+                    <div className="font-tech" style={{ fontSize: 12, fontWeight: 700, color: s.color }}>{s.value}</div>
+                    <div style={{ fontSize: 8, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.06em' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,107,0,.8)', flexShrink: 0 }}>→</div>
+            </div>
+          )
+        })()}
+
         {/* ── TABS ── */}
         <div style={{ display: 'flex', gap: 2, borderBottom: '1px solid var(--border)', marginBottom: 12 }}>
           {([['players', '👤 Jogadores'], ['teams', '🛡️ Por Time']] as const).map(([key, label]) => (
@@ -286,7 +315,9 @@ export function MercadoCenter({
             {/* Header */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 55px 55px 55px 36px', gap: 6, padding: '7px 14px', borderBottom: '1px solid var(--border)' }}>
               {['Jogador', 'Preço', 'Média', 'Proj.', 'Own%', ''].map((h, i) => (
-                <span key={i} style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text3)', textAlign: i >= 1 ? 'right' : 'left' }}>{h}</span>
+                <span key={i} title={h === 'Proj.' ? 'Projeção baseada em últimos jogos, adversário, ranking, forma recente e potencial de mapas.' : undefined} style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text3)', textAlign: i >= 1 ? 'right' : 'left', cursor: h === 'Proj.' ? 'help' : 'default' }}>
+                  {h}{h === 'Proj.' && ' ℹ️'}
+                </span>
               ))}
             </div>
             {filtered.length === 0 ? (
@@ -465,27 +496,52 @@ export function MercadoCenter({
       {/* ══ RIGHT: LINEUP PANEL ══ */}
       <div style={{ position: 'sticky', top: 74 }}>
 
-        {/* Countdown */}
+        {/* ── COUNTDOWN — alerta de urgência ── */}
         <div style={{
-          background: urgent ? 'rgba(239,68,68,.08)' : 'var(--bg2)',
-          border: `1px solid ${urgent ? 'rgba(239,68,68,.25)' : 'var(--border)'}`,
-          borderRadius: 12, padding: '12px 14px', marginBottom: 10, textAlign: 'center',
+          background: urgent ? 'rgba(239,68,68,.1)' : 'rgba(0,0,0,.3)',
+          border: `2px solid ${urgent ? 'rgba(239,68,68,.4)' : 'rgba(255,255,255,.08)'}`,
+          borderRadius: 14, padding: '14px 16px', marginBottom: 10, textAlign: 'center',
+          boxShadow: urgent ? '0 0 20px rgba(239,68,68,.2)' : 'none',
+          position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: urgent ? 'var(--red)' : 'var(--text3)', marginBottom: 4 }}>
-            ⏳ MERCADO FECHA EM
-          </div>
-          <div className="font-tech" style={{ fontSize: 28, fontWeight: 700, color: urgent ? 'var(--red)' : 'var(--white)', letterSpacing: '.04em', lineHeight: 1, animation: urgent ? 'blink 1.5s ease-in-out infinite' : 'none' }}>
-            {pad(mH)}:{pad(mM)}:{pad(mS)}
+          {urgent && <div style={{ position: 'absolute', inset: 0, background: 'rgba(239,68,68,.04)', animation: 'blink 2s ease-in-out infinite' }} />}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: urgent ? 'var(--red)' : 'var(--text3)', marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+              {urgent ? '🚨' : '⏳'} MERCADO FECHA EM
+            </div>
+            <div className="font-tech" style={{ fontSize: 36, fontWeight: 700, color: urgent ? 'var(--red)' : 'var(--white)', letterSpacing: '.06em', lineHeight: 1, animation: urgent && mH === 0 && mM < 30 ? 'blink 1s ease-in-out infinite' : 'none' }}>
+              {pad(mH)}:{pad(mM)}:{pad(mS)}
+            </div>
+            {urgent && (
+              <div style={{ fontSize: 10, color: 'rgba(239,68,68,.8)', marginTop: 4, fontWeight: 600 }}>
+                Ajuste sua lineup antes que feche!
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Lineup */}
+        {/* ── LINEUP PANEL ── */}
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ height: 2, background: lineup.length === MAX ? 'linear-gradient(90deg,var(--green),var(--cyan))' : 'var(--border2)' }} />
+          <div style={{ height: 2, background: lineup.length === MAX ? 'linear-gradient(90deg,var(--green),var(--cyan))' : lineup.length > 0 ? `linear-gradient(90deg,var(--yellow),var(--orange) ${(lineup.length/MAX)*100}%,var(--border2) ${(lineup.length/MAX)*100}%)` : 'var(--border2)' }} />
           <div style={{ padding: '12px 14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text2)' }}>⭐ Minha Lineup</span>
               <span style={{ fontSize: 10, color: 'var(--text3)' }}>{roundName}</span>
+            </div>
+
+            {/* ── SUMMARY BAR — sempre visível ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 5, marginBottom: 10 }}>
+              {[
+                { label: 'Jogadores', value: `${lineup.length}/${MAX}`, color: lineup.length === MAX ? 'var(--green)' : lineup.length > 0 ? 'var(--yellow)' : 'var(--text3)' },
+                { label: 'Projeção',  value: lineup.length > 0 ? `~${projection}` : '—',    color: 'var(--cyan)' },
+                { label: 'Saldo',     value: `${Math.floor(remaining/1000)}K`,                color: remaining < 20000 ? 'var(--red)' : 'var(--green)' },
+                { label: 'Valoriz.',  value: lineup.length > 0 ? `${avgChange >= 0 ? '+' : ''}${(avgChange*100).toFixed(1)}%` : '—', color: avgChange >= 0 ? 'var(--green)' : 'var(--red)' },
+              ].map(s => (
+                <div key={s.label} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 7, padding: '6px 4px', textAlign: 'center' }}>
+                  <div className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontSize: 7, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
             </div>
 
             {/* Slots */}
@@ -510,34 +566,11 @@ export function MercadoCenter({
               })}
             </div>
 
-            {/* Stats */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 10 }}>
-              {/* Budget bar */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, marginBottom: 3 }}>
-                  <span style={{ color: 'var(--text3)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase' }}>Saldo</span>
-                  <span className="font-tech" style={{ fontWeight: 700, color: remaining < 0 ? 'var(--red)' : 'var(--green)' }}>{formatLC(remaining)} LC</span>
-                </div>
-                <div style={{ background: 'var(--border)', borderRadius: 3, height: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 3, transition: 'width .35s', width: `${Math.max(0, Math.min(100, (remaining / initialLc) * 100))}%`, background: remaining < 20000 ? 'var(--red)' : 'linear-gradient(90deg,var(--green),var(--cyan))' }} />
-                </div>
+            {/* Budget progress bar */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ background: 'var(--border)', borderRadius: 3, height: 3, overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 3, transition: 'width .35s', width: `${Math.max(0, Math.min(100, (remaining / initialLc) * 100))}%`, background: remaining < 20000 ? 'var(--red)' : 'linear-gradient(90deg,var(--green),var(--cyan))' }} />
               </div>
-
-              {/* Projection & valorização */}
-              {lineup.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                  <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 7, padding: '7px', textAlign: 'center' }}>
-                    <div className="font-tech" style={{ fontSize: 16, fontWeight: 700, color: 'var(--cyan)' }}>~{projection}</div>
-                    <div style={{ fontSize: 8, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em' }}>Projeção pts</div>
-                  </div>
-                  <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 7, padding: '7px', textAlign: 'center' }}>
-                    <div className="font-tech" style={{ fontSize: 16, fontWeight: 700, color: avgChange >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                      {avgChange >= 0 ? '+' : ''}{(avgChange * 100).toFixed(1)}%
-                    </div>
-                    <div style={{ fontSize: 8, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em' }}>Valoriz. prevista</div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Captain tip */}
@@ -573,6 +606,27 @@ export function MercadoCenter({
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ── MINHA FRANQUIA ── */}
+        <div style={{ background: 'var(--bg2)', border: '1px solid rgba(255,200,50,.15)', borderRadius: 12, padding: '12px 14px', marginTop: 10 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            💎 MINHA FRANQUIA
+            <Link href="/perfil" style={{ fontSize: 9, color: 'var(--text3)', textDecoration: 'none' }}>→ Perfil</Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+            {[
+              { label: 'Patrimônio',       value: '100.000 LC', color: 'var(--green)' },
+              { label: 'Ranking Global',   value: '#—',         color: 'var(--text3)' },
+              { label: 'Ligas Ativas',     value: '3',          color: 'var(--purple)' },
+              { label: 'Campeonatos',      value: '1',          color: 'var(--orange)' },
+            ].map(s => (
+              <div key={s.label} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 8px' }}>
+                <div className="font-tech" style={{ fontSize: 12, fontWeight: 700, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 8, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.06em', marginTop: 1 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Ranking CTA */}
