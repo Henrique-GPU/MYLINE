@@ -125,7 +125,7 @@ export default async function TimesPage() {
                   {/* Logo */}
                   <div style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: logoUrl ? 'rgba(255,255,255,.05)' : brand.bg, boxShadow: logoUrl ? 'none' : `0 0 12px ${brand.bg}40`, border: `1px solid ${brand.bg}30`, padding: logoUrl ? 4 : 0 }}>
                     {logoUrl ? (
-                      <img src={logoUrl} alt={team.name} style={{ width: 36, height: 36, objectFit: 'contain' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.parentElement as HTMLElement).innerHTML = `<span style="font-size:11px;font-weight:900;color:${brand.color};font-family:var(--font-condensed)">${abbr}</span>` }} />
+                      <img src={logoUrl} alt={team.name} width={36} height={36} style={{ objectFit: 'contain' }} />
                     ) : (
                       <span style={{ fontSize: abbr.length > 3 ? 9 : 11, fontWeight: 900, color: brand.color, fontFamily: 'var(--font-condensed)', letterSpacing: '.04em' }}>{abbr}</span>
                     )}
