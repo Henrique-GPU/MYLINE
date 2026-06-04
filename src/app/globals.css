@@ -133,3 +133,13 @@ body {
 .page-animate {
   animation: fadein .2s ease;
 }
+
+/* ── HOVER CARDS ── */
+.hover-card {
+  transition: border-color .2s, transform .2s;
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+}
+.hover-card-green:hover  { border-color: var(--border2) !important; }
+.hover-card-orange:hover { border-color: rgba(249,115,22,.3) !important; }
