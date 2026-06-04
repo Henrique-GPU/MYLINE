@@ -179,17 +179,25 @@ export default function PerfilPage() {
 
           <div style={{ padding: '0 24px 22px', position: 'relative' }}>
             {/* Avatar */}
-            <div style={{
-              width: 82, height: 82, borderRadius: '50%', marginTop: -41,
-              background: 'linear-gradient(135deg, var(--green), var(--cyan))',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28, fontWeight: 900, color: '#000',
-              border: '4px solid var(--bg2)', fontFamily: 'var(--font-condensed)',
-              boxShadow: '0 0 20px rgba(0,240,117,.3)',
-              position: 'relative', zIndex: 1,
-            }}>
-              {initials}
-            </div>
+            {(() => {
+              const steamAv = user.user_metadata?.steam_avatar as string | undefined
+              return (
+                <div style={{
+                  width: 82, height: 82, borderRadius: '50%', marginTop: -41,
+                  background: steamAv ? 'transparent' : 'linear-gradient(135deg, var(--green), var(--cyan))',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 28, fontWeight: 900, color: '#000',
+                  border: '4px solid var(--bg2)', fontFamily: 'var(--font-condensed)',
+                  boxShadow: '0 0 20px rgba(0,240,117,.3)',
+                  position: 'relative', zIndex: 1, overflow: 'hidden',
+                }}>
+                  {steamAv
+                    ? <img src={steamAv} alt={username} width={82} height={82} style={{ objectFit: 'cover' }} />
+                    : initials
+                  }
+                </div>
+              )
+            })()}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: 10, flexWrap: 'wrap', gap: 12 }}>
               <div>
@@ -205,26 +213,15 @@ export default function PerfilPage() {
                 <Link href="/fantasy" style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', textDecoration: 'none', background: 'rgba(0,240,117,.08)', border: '1px solid rgba(0,240,117,.25)', borderRadius: 7, padding: '8px 16px' }}>
                   → Ir ao Mercado
                 </Link>
-                {/* Steam connect — mostra se não tem provider Steam */}
-                {!user.app_metadata?.provider?.includes('steam') && (
-                  <button
-                    onClick={async () => {
-                      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client')
-                      const supabase = getSupabaseBrowserClient()
-                      await supabase.auth.signInWithOAuth({
-                        provider: 'steam' as Parameters<typeof supabase.auth.signInWithOAuth>[0]['provider'],
-                        options: { redirectTo: `${window.location.origin}/steam/callback` },
-                      })
-                    }}
-                    style={{ fontSize: 12, fontWeight: 700, color: '#c6d4df', background: 'linear-gradient(135deg,#1b2838,#2a475e)', border: '1px solid rgba(103,193,245,.2)', borderRadius: 7, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
-                  >
-                    🎮 Conectar Steam
-                  </button>
-                )}
-                {user.app_metadata?.provider === 'steam' && (
+                {user.user_metadata?.provider === 'steam' ? (
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(103,193,245,.08)', border: '1px solid rgba(103,193,245,.2)', borderRadius: 7, padding: '8px 12px', fontSize: 12, color: '#c6d4df', fontWeight: 600 }}>
                     🎮 Steam conectado
                   </div>
+                ) : (
+                  <button onClick={() => window.location.href = '/api/auth/steam'}
+                    style={{ fontSize: 12, fontWeight: 700, color: '#c6d4df', background: 'linear-gradient(135deg,#1b2838,#2a475e)', border: '1px solid rgba(103,193,245,.2)', borderRadius: 7, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🎮 Conectar Steam
+                  </button>
                 )}
               </div>
             </div>
