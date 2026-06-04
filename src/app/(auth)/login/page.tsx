@@ -10,6 +10,7 @@ type ActionState = { error: string } | null
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const justConfirmed = searchParams.get('confirm') === '1'
 
   async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
     const email = formData.get('email') as string
@@ -18,7 +19,12 @@ export default function LoginPage() {
     const supabase = getSupabaseBrowserClient()
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) return { error: error.message }
+    if (error) {
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        return { error: 'Email ainda não confirmado. Verifique sua caixa de entrada e clique no link enviado pelo Supabase.' }
+      }
+      return { error: error.message }
+    }
 
     await fetch('/api/auth/cookie', {
       method: 'POST',
@@ -41,6 +47,12 @@ export default function LoginPage() {
           <Link href="/" className="text-2xl font-bold text-primary">MyLine</Link>
           <p className="text-foreground/50 text-sm mt-2">Entre na sua conta</p>
         </div>
+
+        {justConfirmed && (
+          <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-4 text-sm text-primary text-center">
+            Conta criada! Confirme seu email e depois faça login aqui.
+          </div>
+        )}
 
         <form action={formAction} className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">

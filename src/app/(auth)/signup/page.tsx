@@ -5,7 +5,7 @@ import { useActionState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
-type ActionState = { error: string } | null
+type ActionState = { error: string } | { confirm: true; email: string } | null
 
 export default function SignupPage() {
   const router = useRouter()
@@ -25,8 +25,7 @@ export default function SignupPage() {
     if (error) return { error: error.message }
 
     if (!data.session) {
-      router.push('/login?confirm=1')
-      return null
+      return { confirm: true, email }
     }
 
     await fetch('/api/auth/cookie', {
@@ -41,6 +40,30 @@ export default function SignupPage() {
   }
 
   const [state, formAction, pending] = useActionState(signupAction, null)
+
+  if (state && 'confirm' in state) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="text-5xl mb-4">📧</div>
+          <h1 className="text-xl font-bold mb-2">Confirme seu email</h1>
+          <p className="text-foreground/50 text-sm mb-1">
+            Enviamos um link de confirmação para:
+          </p>
+          <p className="text-primary font-medium text-sm mb-6">{state.email}</p>
+          <p className="text-foreground/40 text-xs mb-6">
+            Clique no link do email e depois volte para fazer login.
+          </p>
+          <Link
+            href="/login"
+            className="inline-block w-full py-2.5 bg-primary text-black font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+          >
+            Ir para o login
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -88,7 +111,7 @@ export default function SignupPage() {
             />
           </div>
 
-          {state?.error && (
+          {state && 'error' in state && (
             <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
               {state.error}
             </p>
