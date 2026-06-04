@@ -8,6 +8,8 @@ interface Props {
   championshipId: string
   roundId: string
   mercadoHref: string
+  championshipName?: string
+  accentColor?: string
 }
 
 type Slot = {
@@ -17,7 +19,7 @@ type Slot = {
   is_captain: boolean
 }
 
-export function MinhaLineup({ championshipId, roundId, mercadoHref }: Props) {
+export function MinhaLineup({ championshipId, roundId, mercadoHref, championshipName, accentColor = 'var(--green)' }: Props) {
   const [slots, setSlots] = useState<Slot[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -94,7 +96,14 @@ export function MinhaLineup({ championshipId, roundId, mercadoHref }: Props) {
       <div style={{ height: 3, background: 'linear-gradient(90deg,var(--green),var(--cyan))' }} />
       <div style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <p className="font-condensed" style={{ fontWeight: 900, fontSize: 15, color: 'var(--white)', textTransform: 'uppercase' }}>⭐ Minha Lineup</p>
+          <div>
+            <p className="font-condensed" style={{ fontWeight: 900, fontSize: 15, color: 'var(--white)', textTransform: 'uppercase', lineHeight: 1 }}>⭐ Minha Lineup</p>
+            {championshipName && (
+              <p style={{ fontSize: 10, color: accentColor, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', marginTop: 2 }}>
+                {championshipName.replace('2026','').replace('Season','S').trim()}
+              </p>
+            )}
+          </div>
           <Link href={mercadoHref} style={{ fontSize: 11, color: 'var(--green)', textDecoration: 'none', fontWeight: 700 }}>Editar →</Link>
         </div>
 

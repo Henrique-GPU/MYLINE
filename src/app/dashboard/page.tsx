@@ -50,20 +50,40 @@ export default async function ArenaPage() {
             NÍVEL 1 — MINHA LINEUP + MERCADO FECHA EM
             "Tenho um time." / "Preciso ajustar minha lineup."
         ══════════════════════════════════════════ */}
-        {activeChamp && meta && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-            <MinhaLineup
-              championshipId={activeChamp.id}
-              roundId={roundId}
-              mercadoHref={`/fantasy/${activeChamp.id}/mercado`}
-            />
-            <ProximaRodada
-              championshipId={activeChamp.id}
-              championshipName={activeChamp.name}
-              roundName="Fase Online"
-              accentColor={accent}
-              mercadoHref={`/fantasy/${activeChamp.id}/mercado`}
-            />
+        {/* ── MINHAS LINEUPS — uma por campeonato ativo/em breve ── */}
+        {(championships ?? []).filter(c => c.status === 'active' || c.status === 'upcoming').length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              ⭐ MINHAS LINEUPS
+              <span style={{ flex: 1, height: 1, background: 'var(--border)', display: 'block' }} />
+              <Link href="/fantasy" style={{ fontSize: 10, color: 'var(--green)', textDecoration: 'none', fontWeight: 700 }}>Ver campeonatos →</Link>
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: 14 }}>
+              {(championships ?? [])
+                .filter(c => c.status === 'active' || c.status === 'upcoming')
+                .map(champ => {
+                  const champMeta = getEventMeta(champ.name)
+                  const roundMap: Record<string, string> = {
+                    'a0000000-0000-0000-0000-000000000001': 'b0000000-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000002': 'b0000002-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000003': 'b0000003-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000004': 'b0000004-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000005': 'b0000005-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000006': 'b0000006-0000-0000-0000-000000000001',
+                    'a0000000-0000-0000-0000-000000000007': 'b0000007-0000-0000-0000-000000000001',
+                  }
+                  return (
+                    <MinhaLineup
+                      key={champ.id}
+                      championshipId={champ.id}
+                      roundId={roundMap[champ.id] ?? 'b0000000-0000-0000-0000-000000000001'}
+                      mercadoHref={`/fantasy/${champ.id}/mercado`}
+                      championshipName={champ.name}
+                      accentColor={champMeta.accentColor}
+                    />
+                  )
+                })}
+            </div>
           </div>
         )}
 
