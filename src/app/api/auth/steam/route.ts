@@ -1,5 +1,7 @@
 export async function GET(request: Request) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  // Deriva a URL base do request — funciona em localhost e produção
+  const reqUrl = new URL(request.url)
+  const siteUrl = `${reqUrl.protocol}//${reqUrl.host}`
   const returnTo = `${siteUrl}/api/auth/steam/callback`
 
   const params = new URLSearchParams({

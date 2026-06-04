@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const params = Object.fromEntries(url.searchParams.entries())
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const siteUrl = `${url.protocol}//${url.host}`
 
   // 1. Verificar com Steam
   const verifyParams = new URLSearchParams({ ...params, 'openid.mode': 'check_authentication' })
@@ -27,8 +27,6 @@ export async function GET(request: Request) {
   // 3. Buscar perfil Steam
   let steamName = `Steam_${steamId}`
   let steamAvatar = ''
-  let steamCountry = ''
-  let steamLevel = 0
 
   try {
     const profileRes = await fetch(
@@ -39,11 +37,10 @@ export async function GET(request: Request) {
     if (player) {
       steamName   = player.personaname ?? steamName
       steamAvatar = player.avatarfull ?? player.avatarmedium ?? ''
-      steamCountry = player.loccountrycode ?? ''
     }
   } catch { /* continua sem perfil */ }
 
-  // 4. Criar/atualizar usuário no Supabase usando service role
+  // 4. Criar/atualizar usuário no Supabase
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -52,37 +49,22 @@ export async function GET(request: Request) {
 
   const email = `steam_${steamId}@myline.internal`
 
-  // Tenta buscar usuário existente
   const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
   const existing = existingUsers?.users?.find(u => u.email === email)
 
   let userId: string
 
   if (existing) {
-    // Atualiza metadata do Steam
     await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-      user_metadata: {
-        username:      steamName,
-        steam_id:      steamId,
-        steam_avatar:  steamAvatar,
-        steam_country: steamCountry,
-        provider:      'steam',
-      },
+      user_metadata: { username: steamName, steam_id: steamId, steam_avatar: steamAvatar, provider: 'steam' },
     })
     userId = existing.id
   } else {
-    // Cria novo usuário
     const { data: newUser, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       email_confirm: true,
-      password: `steam_${steamId}_${Date.now()}`,
-      user_metadata: {
-        username:      steamName,
-        steam_id:      steamId,
-        steam_avatar:  steamAvatar,
-        steam_country: steamCountry,
-        provider:      'steam',
-      },
+      password: `steam_${steamId}_myline`,
+      user_metadata: { username: steamName, steam_id: steamId, steam_avatar: steamAvatar, provider: 'steam' },
     })
     if (error || !newUser?.user) {
       return Response.redirect(`${siteUrl}/login?error=create_failed`)
@@ -90,7 +72,7 @@ export async function GET(request: Request) {
     userId = newUser.user.id
   }
 
-  // 5. Gerar link de login mágico para criar sessão
+  // 5. Gerar magic link para criar sessão
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'magiclink',
     email,
@@ -101,6 +83,5 @@ export async function GET(request: Request) {
     return Response.redirect(`${siteUrl}/login?steam=ok&name=${encodeURIComponent(steamName)}`)
   }
 
-  const sessionUrl = `${siteUrl}/api/auth/steam/session?token_hash=${linkData.properties.hashed_token}`
-  return Response.redirect(sessionUrl)
+  return Response.redirect(`${siteUrl}/api/auth/steam/session?token_hash=${linkData.properties.hashed_token}`)
 }
