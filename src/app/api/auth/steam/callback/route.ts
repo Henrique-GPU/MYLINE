@@ -76,11 +76,14 @@ export async function GET(request: Request) {
     return Response.redirect(`${siteUrl}/login?error=steam_session_failed&detail=${encodeURIComponent(signInError?.message ?? 'no_session')}`)
   }
 
-  // 6. Cookie
+  // 6. Cookie server-side
   const cookieStore = await cookies()
   cookieStore.set('myline-token', data.session.access_token, {
     httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7,
   })
 
-  return Response.redirect(`${siteUrl}/dashboard`)
+  // 7. Redireciona para página de sync com tokens no hash (não aparecem em logs)
+  const at = encodeURIComponent(data.session.access_token)
+  const rt = encodeURIComponent(data.session.refresh_token)
+  return Response.redirect(`${siteUrl}/steam/complete#access_token=${at}&refresh_token=${rt}`)
 }
