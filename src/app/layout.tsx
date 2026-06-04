@@ -1,15 +1,26 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Barlow, Barlow_Condensed, Share_Tech_Mono } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const barlow = Barlow({
+  weight: ['400', '600', '700', '900'],
   subsets: ['latin'],
+  variable: '--font-barlow',
+  display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const barlowCondensed = Barlow_Condensed({
+  weight: ['700', '900'],
   subsets: ['latin'],
+  variable: '--font-condensed',
+  display: 'swap',
+})
+
+const shareTechMono = Share_Tech_Mono({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-tech',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -19,12 +30,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
+    <html
+      lang="pt-BR"
+      className={`${barlow.variable} ${barlowCondensed.variable} ${shareTechMono.variable}`}
+    >
+      <body className="min-h-screen flex flex-col antialiased">
         {children}
       </body>
     </html>

@@ -13,16 +13,16 @@ export default async function MercadoPage({
 
   const { data: championship } = await supabase
     .from('championships')
-    .select('*')
+    .select('id, name, initial_lc, status')
     .eq('id', championshipId)
     .single()
 
+  // Busca rodada ativa ou a próxima (pela ordem)
   const { data: round } = await supabase
     .from('rounds')
-    .select('*')
+    .select('id, round_name, status, round_order')
     .eq('championship_id', championshipId)
-    .eq('status', 'active')
-    .order('number', { ascending: false })
+    .order('round_order', { ascending: true })
     .limit(1)
     .single()
 
@@ -39,7 +39,6 @@ export default async function MercadoPage({
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto px-6 py-10">
-        {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-foreground/40 mb-6">
           <Link href="/fantasy" className="hover:text-foreground/70 transition-colors">Fantasy</Link>
           <span>›</span>
@@ -49,38 +48,32 @@ export default async function MercadoPage({
         </div>
 
         <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">{championship.name}</h1>
-            <p className="text-foreground/50 text-sm mt-0.5">Temporada {championship.season}</p>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href={`/fantasy/${championshipId}/ranking`}
-              className="px-4 py-2 text-sm bg-surface border border-border rounded-lg hover:border-primary/30 transition-colors"
-            >
-              Ver ranking
-            </Link>
-          </div>
+          <h1 className="text-2xl font-bold">{championship.name}</h1>
+          <Link
+            href={`/fantasy/${championshipId}/ranking`}
+            className="px-4 py-2 text-sm bg-surface border border-border rounded-lg hover:border-primary/30 transition-colors"
+          >
+            Ver ranking
+          </Link>
         </div>
 
         {!round ? (
           <div className="bg-surface border border-border rounded-xl p-10 text-center">
-            <p className="text-foreground/50">Nenhuma rodada ativa no momento.</p>
-            <p className="text-foreground/30 text-sm mt-1">
-              Aguarde o início da próxima rodada para montar sua lineup.
-            </p>
+            <p className="text-foreground/50">Nenhuma rodada disponível no momento.</p>
           </div>
         ) : (
           <>
             <div className="bg-surface border border-border rounded-xl px-5 py-3 mb-6 flex items-center gap-4">
               <div>
                 <span className="text-xs text-foreground/40 uppercase tracking-wider">Rodada</span>
-                <p className="font-semibold">{round.name}</p>
+                <p className="font-semibold">{round.round_name}</p>
               </div>
               <div className="w-px h-8 bg-border" />
               <div>
                 <span className="text-xs text-foreground/40 uppercase tracking-wider">Orçamento</span>
-                <p className="font-semibold font-mono text-primary">100.000 LC</p>
+                <p className="font-semibold font-mono text-primary">
+                  {(championship.initial_lc ?? 100000).toLocaleString('pt-BR')} LC
+                </p>
               </div>
               <div className="w-px h-8 bg-border" />
               <div>
@@ -92,7 +85,7 @@ export default async function MercadoPage({
             <LineupBuilder
               championshipId={championshipId}
               roundId={round.id}
-              roundName={round.name}
+              roundName={round.round_name}
             />
           </>
         )}

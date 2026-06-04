@@ -1,35 +1,135 @@
 @import "tailwindcss";
 
+/* ── ORIGINAL MYLINE COLOR PALETTE ── */
 :root {
-  --background: #0a0a0f;
-  --foreground: #f0f0f0;
-  --primary: #4ade80;
-  --primary-dark: #16a34a;
-  --accent: #f59e0b;
-  --surface: #111118;
-  --surface-2: #1a1a25;
-  --border: #2a2a3a;
+  --bg:      #05080f;
+  --bg2:     #090e1a;
+  --bg3:     #0d1220;
+  --bg4:     #111826;
+  --border:  #172030;
+  --border2: #1e2d42;
+  --green:   #00f075;
+  --green2:  #00c45e;
+  --cyan:    #00d4ff;
+  --blue:    #1e7fff;
+  --red:     #ef4444;
+  --yellow:  #f59e0b;
+  --orange:  #f97316;
+  --purple:  #8b5cf6;
+  --gold:    #ffc832;
+  --text:    #c8d4e8;
+  --text2:   #5a6e90;
+  --text3:   #38455e;
+  --white:   #eef2ff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-accent: var(--accent);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-border: var(--border);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:      var(--bg);
+  --color-bg2:     var(--bg2);
+  --color-bg3:     var(--bg3);
+  --color-bg4:     var(--bg4);
+  --color-border:  var(--border);
+  --color-border2: var(--border2);
+  --color-green:   var(--green);
+  --color-green2:  var(--green2);
+  --color-cyan:    var(--cyan);
+  --color-myblue:  var(--blue);
+  --color-myred:   var(--red);
+  --color-yellow:  var(--yellow);
+  --color-orange:  var(--orange);
+  --color-purple:  var(--purple);
+  --color-gold:    var(--gold);
+  --color-muted:   var(--text);
+  --color-muted2:  var(--text2);
+  --color-muted3:  var(--text3);
+  --color-white:   var(--white);
+  --font-barlow:   var(--font-barlow);
+  --font-condensed: var(--font-condensed);
+  --font-tech:     var(--font-tech);
 }
+
+/* ── BASE ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-barlow), 'Barlow', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-* {
-  box-sizing: border-box;
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── ANIMATIONS ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+@keyframes glowcta {
+  0%, 100% { box-shadow: 0 0 12px rgba(255,107,0,.3); }
+  50%       { box-shadow: 0 0 24px rgba(255,107,0,.65); }
+}
+@keyframes glowgreen {
+  0%, 100% { box-shadow: 0 0 12px rgba(0,240,117,.25); }
+  50%       { box-shadow: 0 0 22px rgba(0,240,117,.55); }
+}
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── UTILITY CLASSES ── */
+.font-condensed { font-family: var(--font-condensed), 'Barlow Condensed', sans-serif; }
+.font-tech      { font-family: var(--font-tech), 'Share Tech Mono', monospace; }
+
+.text-gradient-green {
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-orange {
+  background: linear-gradient(90deg, #ff6b00, #ffc832);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-green {
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  color: #000;
+  font-weight: 700;
+  transition: all .15s;
+}
+.btn-green:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(0,240,117,.35);
+}
+
+.btn-orange {
+  background: linear-gradient(90deg, #ff6b00, #ff9500);
+  color: #fff;
+  font-weight: 700;
+  animation: glowcta 2.5s ease-in-out infinite;
+  transition: all .15s;
+}
+.btn-orange:hover { transform: translateY(-1px); }
+
+.card-green-top::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  margin: -1px -1px 0;
+}
+
+.live-badge {
+  animation: blink .9s ease-in-out infinite;
+}
+
+.page-animate {
+  animation: fadein .2s ease;
 }

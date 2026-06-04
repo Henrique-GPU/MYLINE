@@ -1,17 +1,23 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import type { Tables } from '@/types/database'
 
-type Championship = Tables<'championships'>
+type Championship = {
+  id: string
+  name: string
+  status: string
+  initial_lc: number
+  banner_url: string | null
+  created_at: string
+}
 
-function StatusBadge({ status }: { status: Championship['status'] }) {
-  const map = {
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
     upcoming: { label: 'Em breve', cls: 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20' },
-    active: { label: 'Ao vivo', cls: 'bg-primary/10 text-primary border-primary/20' },
+    active:   { label: 'Ao vivo',  cls: 'bg-primary/10 text-primary border-primary/20' },
     finished: { label: 'Encerrado', cls: 'bg-foreground/10 text-foreground/40 border-foreground/10' },
-  } as const
-  const { label, cls } = map[status]
+  }
+  const { label, cls } = map[status] ?? { label: status, cls: 'bg-foreground/10 text-foreground/40 border-foreground/10' }
   return (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${cls}`}>
       {label}
@@ -20,21 +26,15 @@ function StatusBadge({ status }: { status: Championship['status'] }) {
 }
 
 function ChampionshipCard({ c }: { c: Championship }) {
-  const start = new Date(c.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-  const end = new Date(c.end_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-
   return (
     <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4 hover:border-primary/30 transition-colors">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-semibold text-base">{c.name}</h3>
-          <p className="text-foreground/40 text-sm mt-0.5">Temporada {c.season}</p>
-        </div>
+        <h3 className="font-semibold text-base">{c.name}</h3>
         <StatusBadge status={c.status} />
       </div>
 
       <div className="text-xs text-foreground/40">
-        {start} — {end}
+        Orçamento inicial: <span className="text-primary font-mono">{c.initial_lc.toLocaleString('pt-BR')} LC</span>
       </div>
 
       <div className="flex gap-2 pt-1">
@@ -55,12 +55,12 @@ function ChampionshipCard({ c }: { c: Championship }) {
           </>
         )}
         {c.status === 'upcoming' && (
-          <button
-            disabled
-            className="flex-1 text-center py-2 bg-surface-2 border border-border text-sm text-foreground/30 rounded-lg cursor-not-allowed"
+          <Link
+            href={`/fantasy/${c.id}/mercado`}
+            className="flex-1 text-center py-2 bg-primary text-black text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors"
           >
-            Inscrições em breve
-          </button>
+            Ver mercado
+          </Link>
         )}
         {c.status === 'finished' && (
           <Link
@@ -79,13 +79,13 @@ export default async function FantasyPage() {
   const supabase = getSupabaseServerClient()
   const { data: championships } = await supabase
     .from('championships')
-    .select('*')
-    .eq('type', 'fantasy')
-    .order('season', { ascending: false })
+    .select('id, name, status, initial_lc, banner_url, created_at')
+    .order('created_at', { ascending: false })
 
-  const active = championships?.filter((c) => c.status === 'active') ?? []
-  const upcoming = championships?.filter((c) => c.status === 'upcoming') ?? []
-  const finished = championships?.filter((c) => c.status === 'finished') ?? []
+  const list = (championships ?? []) as Championship[]
+  const active   = list.filter((c) => c.status === 'active')
+  const upcoming = list.filter((c) => c.status === 'upcoming')
+  const finished = list.filter((c) => c.status === 'finished')
 
   return (
     <AppLayout>
@@ -97,19 +97,16 @@ export default async function FantasyPage() {
           </p>
         </div>
 
-        {championships?.length === 0 && (
+        {list.length === 0 && (
           <div className="bg-surface border border-border rounded-xl p-12 text-center">
             <p className="text-4xl mb-4">🏆</p>
             <p className="text-foreground/50">Nenhum campeonato disponível no momento.</p>
-            <p className="text-foreground/30 text-sm mt-1">Volte em breve para a Temporada 2025.</p>
           </div>
         )}
 
         {active.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">
-              Ao vivo
-            </h2>
+            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Ao vivo</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {active.map((c) => <ChampionshipCard key={c.id} c={c} />)}
             </div>
@@ -118,9 +115,7 @@ export default async function FantasyPage() {
 
         {upcoming.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">
-              Em breve
-            </h2>
+            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Em breve</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {upcoming.map((c) => <ChampionshipCard key={c.id} c={c} />)}
             </div>
@@ -129,9 +124,7 @@ export default async function FantasyPage() {
 
         {finished.length > 0 && (
           <section>
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">
-              Encerrados
-            </h2>
+            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Encerrados</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {finished.map((c) => <ChampionshipCard key={c.id} c={c} />)}
             </div>
@@ -139,9 +132,7 @@ export default async function FantasyPage() {
         )}
 
         <div className="mt-10 bg-surface border border-border rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-foreground/40 uppercase tracking-wider mb-3">
-            Como funciona
-          </h3>
+          <h3 className="text-sm font-semibold text-foreground/40 uppercase tracking-wider mb-3">Como funciona</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             {[
               { n: '1', t: 'Escolha jogadores', d: 'Monte sua lineup com até 5 jogadores dentro do orçamento de 100.000 LC.' },

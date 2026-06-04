@@ -34,41 +34,116 @@ export function Navbar() {
 
   const links = [
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/fantasy', label: 'Fantasy' },
+    { href: '/fantasy',   label: 'Fantasy' },
     { href: '/comunidade', label: 'Comunidade' },
   ]
 
+  const username = user?.user_metadata?.username ?? user?.email?.split('@')[0] ?? ''
+  const initials = username.slice(0, 2).toUpperCase()
+
   return (
-    <header className="border-b border-border px-6 py-4 flex items-center gap-6">
-      <Link href="/dashboard" className="text-xl font-bold text-primary shrink-0">
-        MyLine
+    <header
+      style={{
+        height: 58,
+        background: 'rgba(5,8,15,.97)',
+        borderBottom: '1px solid var(--border)',
+        backdropFilter: 'blur(14px)',
+        position: 'fixed',
+        top: 0, left: 0, right: 0,
+        zIndex: 300,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 20px',
+        gap: 6,
+      }}
+    >
+      {/* Logo */}
+      <Link href="/dashboard" style={{ display: 'flex', flexDirection: 'column', marginRight: 12, textDecoration: 'none', flexShrink: 0 }}>
+        <span
+          className="font-condensed text-gradient-green"
+          style={{ fontWeight: 900, fontSize: 20, letterSpacing: '.06em', textTransform: 'uppercase', lineHeight: 1 }}
+        >
+          MyLine
+        </span>
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)' }}>
+          CS2
+        </span>
       </Link>
 
-      <nav className="flex items-center gap-1 flex-1">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              pathname.startsWith(link.href)
-                ? 'bg-primary/10 text-primary font-medium'
-                : 'text-foreground/60 hover:text-foreground hover:bg-surface-2'
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
+      {/* Nav links */}
+      <nav style={{ display: 'flex', gap: 2 }}>
+        {links.map((link) => {
+          const active = pathname.startsWith(link.href)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              style={{
+                background: active ? 'rgba(0,240,117,.08)' : 'transparent',
+                color: active ? 'var(--green)' : 'var(--text2)',
+                border: 'none',
+                borderRadius: 6,
+                padding: '7px 12px',
+                fontFamily: 'inherit',
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                transition: 'all .15s',
+              }}
+            >
+              {link.label}
+            </Link>
+          )
+        })}
       </nav>
 
-      <div className="flex items-center gap-3">
+      {/* Right side */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* Round pill */}
+        <div style={{
+          background: 'rgba(255,200,50,.06)',
+          border: '1px solid rgba(255,200,50,.2)',
+          borderRadius: 20,
+          padding: '5px 12px',
+          fontSize: 11,
+          color: 'var(--yellow)',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 5,
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--yellow)', display: 'inline-block', animation: 'blink 1.2s ease-in-out infinite' }} />
+          BLAST Bounty S2
+        </div>
+
         {user ? (
           <>
-            <span className="text-sm text-foreground/60 hidden sm:block">
-              {user.user_metadata?.username ?? user.email?.split('@')[0]}
-            </span>
+            <div
+              style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--green), var(--cyan))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 900, fontSize: 13, color: '#000', cursor: 'pointer', flexShrink: 0,
+              }}
+              title={username}
+            >
+              {initials || '?'}
+            </div>
             <button
               onClick={handleLogout}
-              className="text-sm text-foreground/40 hover:text-foreground/70 transition-colors"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border2)',
+                borderRadius: 6,
+                color: 'var(--text2)',
+                fontSize: 12,
+                fontWeight: 600,
+                padding: '5px 10px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
             >
               Sair
             </button>
@@ -76,7 +151,14 @@ export function Navbar() {
         ) : (
           <Link
             href="/login"
-            className="text-sm px-3 py-1.5 bg-primary text-black font-medium rounded-lg hover:bg-primary-dark transition-colors"
+            className="btn-green"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              borderRadius: 8, padding: '7px 14px',
+              fontFamily: 'inherit', fontSize: 12,
+              fontWeight: 700, textDecoration: 'none',
+              letterSpacing: '.06em', textTransform: 'uppercase',
+            }}
           >
             Entrar
           </Link>

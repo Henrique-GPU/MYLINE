@@ -31,27 +31,24 @@ export interface Database {
         Row: {
           id: string
           name: string
-          season: number
-          start_date: string
-          end_date: string
-          status: 'upcoming' | 'active' | 'finished'
-          type: 'fantasy' | 'community'
+          banner_url: string | null
+          initial_lc: number
+          status: string
           created_at: string
         }
         Insert: {
           id?: string
           name: string
-          season: number
-          start_date: string
-          end_date: string
-          status?: 'upcoming' | 'active' | 'finished'
-          type: 'fantasy' | 'community'
+          banner_url?: string | null
+          initial_lc?: number
+          status?: string
           created_at?: string
         }
         Update: {
           name?: string
-          status?: 'upcoming' | 'active' | 'finished'
-          end_date?: string
+          banner_url?: string | null
+          initial_lc?: number
+          status?: string
         }
         Relationships: []
       }
@@ -59,51 +56,45 @@ export interface Database {
         Row: {
           id: string
           name: string
-          abbreviation: string
           logo_url: string | null
-          region: string | null
-          created_at: string
+          country: string | null
         }
         Insert: {
           id?: string
           name: string
-          abbreviation: string
           logo_url?: string | null
-          region?: string | null
-          created_at?: string
+          country?: string | null
         }
         Update: {
           name?: string
-          abbreviation?: string
           logo_url?: string | null
-          region?: string | null
+          country?: string | null
         }
         Relationships: []
       }
       players: {
         Row: {
           id: string
-          name: string
           nickname: string
           team_id: string | null
-          role: 'rifler' | 'awper' | 'igl' | 'support' | 'entry' | null
-          country: string | null
-          created_at: string
+          role: string | null
+          price_lc: number
+          eliminated: boolean
         }
         Insert: {
           id?: string
-          name: string
           nickname: string
           team_id?: string | null
-          role?: 'rifler' | 'awper' | 'igl' | 'support' | 'entry' | null
-          country?: string | null
-          created_at?: string
+          role?: string | null
+          price_lc?: number
+          eliminated?: boolean
         }
         Update: {
-          name?: string
           nickname?: string
           team_id?: string | null
-          role?: 'rifler' | 'awper' | 'igl' | 'support' | 'entry' | null
+          role?: string | null
+          price_lc?: number
+          eliminated?: boolean
         }
         Relationships: []
       }
@@ -111,27 +102,21 @@ export interface Database {
         Row: {
           id: string
           championship_id: string
-          number: number
-          name: string
-          start_date: string
-          end_date: string
-          status: 'upcoming' | 'active' | 'finished'
-          created_at: string
+          round_name: string
+          status: string
+          round_order: number
         }
         Insert: {
           id?: string
           championship_id: string
-          number: number
-          name: string
-          start_date: string
-          end_date: string
-          status?: 'upcoming' | 'active' | 'finished'
-          created_at?: string
+          round_name: string
+          status?: string
+          round_order: number
         }
         Update: {
-          name?: string
-          status?: 'upcoming' | 'active' | 'finished'
-          end_date?: string
+          round_name?: string
+          status?: string
+          round_order?: number
         }
         Relationships: []
       }
@@ -140,20 +125,18 @@ export interface Database {
           id: string
           user_id: string
           championship_id: string
-          budget: number
+          lc_balance: number
           total_points: number
-          created_at: string
         }
         Insert: {
           id?: string
           user_id: string
           championship_id: string
-          budget?: number
+          lc_balance?: number
           total_points?: number
-          created_at?: string
         }
         Update: {
-          budget?: number
+          lc_balance?: number
           total_points?: number
         }
         Relationships: []

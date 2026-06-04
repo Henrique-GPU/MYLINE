@@ -6,14 +6,13 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 const BUDGET = 100_000
 const MAX_PLAYERS = 5
 
-type Team = { id: string; name: string; abbreviation: string }
+type Team = { id: string; name: string }
 
 type PlayerWithPrice = {
   player_id: string
   price: number
   price_change: number
   nickname: string
-  name: string
   role: string | null
   team: Team | null
 }
@@ -37,11 +36,11 @@ function PriceChange({ pct }: { pct: number }) {
 function RoleBadge({ role }: { role: string | null }) {
   if (!role) return null
   const colors: Record<string, string> = {
-    awper: 'bg-yellow-400/10 text-yellow-400',
-    igl: 'bg-purple-400/10 text-purple-400',
-    entry: 'bg-red-400/10 text-red-400',
+    awper:   'bg-yellow-400/10 text-yellow-400',
+    igl:     'bg-purple-400/10 text-purple-400',
+    entry:   'bg-red-400/10 text-red-400',
     support: 'bg-blue-400/10 text-blue-400',
-    rifler: 'bg-foreground/10 text-foreground/50',
+    rifler:  'bg-foreground/10 text-foreground/50',
   }
   return (
     <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${colors[role] ?? 'bg-foreground/10 text-foreground/50'}`}>
@@ -71,36 +70,30 @@ export function LineupBuilder({
   const spent = lineup.reduce((sum, s) => sum + s.player.price, 0)
   const remaining = BUDGET - spent
 
-  // Load players + existing lineup
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
 
     async function load() {
       setLoadingPlayers(true)
-      // 1. player prices for this round
+
       const { data: prices } = await supabase
         .from('player_prices')
         .select('player_id, price, price_change')
         .eq('round_id', roundId)
         .order('price', { ascending: false })
 
-      if (!prices?.length) {
-        setLoadingPlayers(false)
-        return
-      }
+      if (!prices?.length) { setLoadingPlayers(false); return }
 
       const playerIds = prices.map((p) => p.player_id)
 
-      // 2. player details
       const { data: playerRows } = await supabase
         .from('players')
-        .select('id, nickname, name, role, team_id')
+        .select('id, nickname, role, team_id')
         .in('id', playerIds)
 
-      // 3. teams
-      const teamIds = [...new Set(playerRows?.map((p) => p.team_id).filter(Boolean))]
+      const teamIds = [...new Set((playerRows ?? []).map((p) => p.team_id).filter(Boolean))]
       const { data: teamRows } = teamIds.length
-        ? await supabase.from('teams').select('id, name, abbreviation').in('id', teamIds as string[])
+        ? await supabase.from('teams').select('id, name').in('id', teamIds as string[])
         : { data: [] }
 
       const teamsById = Object.fromEntries((teamRows ?? []).map((t) => [t.id, t]))
@@ -113,14 +106,12 @@ export function LineupBuilder({
           price: pp.price,
           price_change: pp.price_change,
           nickname: p?.nickname ?? '???',
-          name: p?.name ?? '',
           role: p?.role ?? null,
           team: p?.team_id ? (teamsById[p.team_id] ?? null) : null,
         }
       })
       setPlayers(merged)
 
-      // 4. existing lineup for this user+round
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoadingPlayers(false); return }
 
@@ -177,9 +168,7 @@ export function LineupBuilder({
     if (!user) { setSaveError('Você precisa estar logado.'); return }
     if (lineup.length === 0) { setSaveError('Adicione pelo menos 1 jogador.'); return }
 
-    // Upsert lineup
     let lineupId: string
-
     const { data: existing } = await supabase
       .from('lineups')
       .select('id')
@@ -189,7 +178,6 @@ export function LineupBuilder({
 
     if (existing) {
       lineupId = existing.id
-      // Delete old slots
       await supabase.from('lineup_players').delete().eq('lineup_id', lineupId)
     } else {
       const { data: created, error } = await supabase
@@ -201,7 +189,6 @@ export function LineupBuilder({
       lineupId = created.id
     }
 
-    // Insert new slots
     const slots = lineup.map((s) => ({
       lineup_id: lineupId,
       player_id: s.player.player_id,
@@ -218,7 +205,7 @@ export function LineupBuilder({
 
   const filtered = players.filter((p) => {
     const matchSearch = p.nickname.toLowerCase().includes(search.toLowerCase()) ||
-      p.team?.abbreviation.toLowerCase().includes(search.toLowerCase())
+      (p.team?.name ?? '').toLowerCase().includes(search.toLowerCase())
     const matchRole = filterRole === 'all' || p.role === filterRole
     return matchSearch && matchRole
   })
@@ -260,9 +247,7 @@ export function LineupBuilder({
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center bg-surface border border-border rounded-xl">
             <p className="text-foreground/40 text-sm">
-              {players.length === 0
-                ? 'Nenhum jogador disponível nesta rodada ainda.'
-                : 'Nenhum jogador encontrado.'}
+              {players.length === 0 ? 'Nenhum jogador nesta rodada.' : 'Nenhum jogador encontrado.'}
             </p>
           </div>
         ) : (
@@ -282,9 +267,7 @@ export function LineupBuilder({
                       <span className="font-semibold text-sm truncate">{p.nickname}</span>
                       <RoleBadge role={p.role} />
                     </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-xs text-foreground/40">{p.team?.abbreviation ?? '—'}</span>
-                    </div>
+                    <span className="text-xs text-foreground/40">{p.team?.name ?? '—'}</span>
                   </div>
 
                   <div className="text-right shrink-0">
@@ -320,7 +303,6 @@ export function LineupBuilder({
             <span className="text-xs text-foreground/40">{roundName}</span>
           </div>
 
-          {/* Slots */}
           <div className="flex flex-col gap-2 mb-4">
             {Array.from({ length: MAX_PLAYERS }).map((_, i) => {
               const slot = lineup[i]
@@ -363,7 +345,6 @@ export function LineupBuilder({
             })}
           </div>
 
-          {/* Budget */}
           <div className="mb-4">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-foreground/50">Orçamento restante</span>
@@ -386,7 +367,7 @@ export function LineupBuilder({
           )}
           {saved && (
             <p className="text-primary text-xs bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 mb-3">
-              Lineup salva com sucesso!
+              Lineup salva!
             </p>
           )}
 

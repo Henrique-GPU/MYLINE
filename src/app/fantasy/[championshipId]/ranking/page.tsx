@@ -19,9 +19,9 @@ export default async function RankingPage({
   // Get all rounds for this championship
   const { data: rounds } = await supabase
     .from('rounds')
-    .select('id, name, number, status')
+    .select('id, round_name, round_order, status')
     .eq('championship_id', championshipId)
-    .order('number', { ascending: false })
+    .order('round_order', { ascending: false })
 
   // Active or last finished round for ranking display
   const activeRound = rounds?.find((r) => r.status === 'active') ?? rounds?.[0]
@@ -91,7 +91,7 @@ export default async function RankingPage({
           <div>
             <h1 className="text-2xl font-bold">Ranking</h1>
             {activeRound && (
-              <p className="text-foreground/50 text-sm mt-0.5">{activeRound.name}</p>
+              <p className="text-foreground/50 text-sm mt-0.5">{activeRound.round_name}</p>
             )}
           </div>
           {championship && (
@@ -116,7 +116,7 @@ export default async function RankingPage({
                     : 'bg-surface border-border text-foreground/40'
                 }`}
               >
-                {r.name}
+                {r.round_name}
               </span>
             ))}
           </div>
