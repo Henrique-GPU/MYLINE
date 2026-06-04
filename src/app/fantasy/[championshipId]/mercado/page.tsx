@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
-import { LineupBuilder } from '@/components/fantasy/lineup-builder'
+import { MercadoCenter } from '@/components/fantasy/mercado-center'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getEventMeta } from '@/lib/events'
 
 export default async function MercadoPage({
   params,
@@ -17,7 +18,6 @@ export default async function MercadoPage({
     .eq('id', championshipId)
     .single()
 
-  // Busca rodada ativa ou a próxima (pela ordem)
   const { data: round } = await supabase
     .from('rounds')
     .select('id, round_name, status, round_order')
@@ -29,65 +29,58 @@ export default async function MercadoPage({
   if (!championship) {
     return (
       <AppLayout>
-        <div className="max-w-5xl mx-auto px-6 py-10">
-          <p className="text-foreground/40">Campeonato não encontrado.</p>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 20px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--text3)' }}>Campeonato não encontrado.</p>
         </div>
       </AppLayout>
     )
   }
 
+  const meta = getEventMeta(championship.name)
+
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <div className="flex items-center gap-2 text-sm text-foreground/40 mb-6">
-          <Link href="/fantasy" className="hover:text-foreground/70 transition-colors">Campeonatos</Link>
-          <span>›</span>
-          <span className="text-foreground/70">{championship.name}</span>
-          <span>›</span>
-          <span className="text-foreground">Mercado</span>
-        </div>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 20px 40px' }} className="page-animate">
 
-        <div className="flex items-start justify-between mb-6">
-          <h1 className="text-2xl font-bold">{championship.name}</h1>
-          <Link
-            href={`/fantasy/${championshipId}/ranking`}
-            className="px-4 py-2 text-sm bg-surface border border-border rounded-lg hover:border-primary/30 transition-colors"
-          >
-            Ver ranking
-          </Link>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, padding: '14px 18px', background: 'var(--bg2)', border: `1px solid ${meta.accentColor}20`, borderRadius: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+              <Link href="/fantasy" style={{ fontSize: 11, color: 'var(--text3)', textDecoration: 'none' }}>Campeonatos</Link>
+              <span style={{ color: 'var(--text3)', fontSize: 11 }}>›</span>
+              <Link href={`/fantasy/${championshipId}`} style={{ fontSize: 11, color: 'var(--text2)', textDecoration: 'none' }}>{championship.name}</Link>
+              <span style={{ color: 'var(--text3)', fontSize: 11 }}>›</span>
+              <span style={{ fontSize: 11, color: 'var(--white)' }}>Mercado</span>
+            </div>
+            <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 20, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+              {championship.name.replace('2026','').replace('Season','S').trim()} — Mercado de Jogadores
+            </h1>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            {[
+              { icon: meta.flagEmoji, text: meta.location },
+              { icon: '💰', text: meta.prize },
+              { icon: '🛡️', text: `${meta.teams} times` },
+            ].map(pill => (
+              <div key={pill.text} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 20, padding: '4px 10px' }}>
+                <span style={{ fontSize: 11 }}>{pill.icon}</span>
+                <span style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 600 }}>{pill.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {!round ? (
-          <div className="bg-surface border border-border rounded-xl p-10 text-center">
-            <p className="text-foreground/50">Nenhuma rodada disponível no momento.</p>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: '40px', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text3)' }}>Nenhuma rodada disponível no momento.</p>
           </div>
         ) : (
-          <>
-            <div className="bg-surface border border-border rounded-xl px-5 py-3 mb-6 flex items-center gap-4">
-              <div>
-                <span className="text-xs text-foreground/40 uppercase tracking-wider">Rodada</span>
-                <p className="font-semibold">{round.round_name}</p>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div>
-                <span className="text-xs text-foreground/40 uppercase tracking-wider">Orçamento</span>
-                <p className="font-semibold font-mono text-primary">
-                  {(championship.initial_lc ?? 100000).toLocaleString('pt-BR')} LC
-                </p>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div>
-                <span className="text-xs text-foreground/40 uppercase tracking-wider">Jogadores</span>
-                <p className="font-semibold">5 por lineup</p>
-              </div>
-            </div>
-
-            <LineupBuilder
-              championshipId={championshipId}
-              roundId={round.id}
-              roundName={round.round_name}
-            />
-          </>
+          <MercadoCenter
+            championshipId={championshipId}
+            roundId={round.id}
+            roundName={round.round_name}
+            initialLc={championship.initial_lc ?? 100000}
+          />
         )}
       </div>
     </AppLayout>
