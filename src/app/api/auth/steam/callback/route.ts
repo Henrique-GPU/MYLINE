@@ -82,8 +82,12 @@ export async function GET(request: Request) {
     httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7,
   })
 
-  // 7. Redireciona para página de sync com tokens no hash (não aparecem em logs)
-  const at = encodeURIComponent(data.session.access_token)
-  const rt = encodeURIComponent(data.session.refresh_token)
-  return Response.redirect(`${siteUrl}/steam/complete#access_token=${at}&refresh_token=${rt}`)
+  // 7. Redireciona para dashboard com tokens no hash
+  // O Supabase client detecta automaticamente via detectSessionInUrl: true
+  const at = data.session.access_token
+  const rt = data.session.refresh_token
+  const exp = data.session.expires_in ?? 3600
+  return Response.redirect(
+    `${siteUrl}/dashboard#access_token=${at}&refresh_token=${rt}&token_type=bearer&expires_in=${exp}&type=recovery`
+  )
 }

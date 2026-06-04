@@ -7,7 +7,14 @@ export function getSupabaseBrowserClient(): SupabaseClient<Database> {
   if (instance) return instance
   instance = createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    }
   )
   return instance
 }
