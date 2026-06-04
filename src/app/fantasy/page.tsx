@@ -37,7 +37,7 @@ export default async function FantasyPage() {
 
   function Card({ c }: { c: Championship }) {
     const s = STATUS[c.status as keyof typeof STATUS] ?? STATUS.finished
-    const bg = BANNERS[c.status] ?? BANNERS.finished
+    const isBlast = c.name.toLowerCase().includes('blast')
 
     return (
       <div style={{
@@ -48,12 +48,38 @@ export default async function FantasyPage() {
       >
         {/* Banner */}
         <div style={{
-          height: 90, background: bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 44, position: 'relative',
+          height: 110, position: 'relative', overflow: 'hidden',
+          background: isBlast
+            ? 'linear-gradient(135deg, #0a0500 0%, #1a0800 40%, #0d0400 100%)'
+            : BANNERS[c.status] ?? BANNERS.finished,
           borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', padding: '0 18px',
         }}>
-          🏆
+          {isBlast && (
+            <>
+              {/* Grid */}
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,107,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.05) 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
+              {/* Glow */}
+              <div style={{ position: 'absolute', top: -20, left: '30%', width: 200, height: 100, background: 'radial-gradient(ellipse, rgba(255,107,0,.15), transparent 70%)', pointerEvents: 'none' }} />
+              {/* BLAST text */}
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div className="font-condensed" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(255,107,0,.7)', marginBottom: 2 }}>
+                  BLAST PREMIER
+                </div>
+                <div className="font-condensed text-gradient-orange" style={{ fontWeight: 900, fontSize: 22, letterSpacing: '.04em', textTransform: 'uppercase', lineHeight: 1 }}>
+                  Bounty 2026
+                </div>
+                <div className="font-condensed" style={{ fontWeight: 700, fontSize: 13, color: 'rgba(255,200,50,.8)', letterSpacing: '.1em', marginTop: 2 }}>
+                  SEASON 2 · MALTA
+                </div>
+              </div>
+              {/* Trophy */}
+              <div style={{ position: 'absolute', right: 50, top: '50%', transform: 'translateY(-50%)', fontSize: 52, opacity: .15, filter: 'blur(1px)' }}>🏆</div>
+            </>
+          )}
+          {!isBlast && (
+            <div style={{ fontSize: 40, margin: '0 auto' }}>🏆</div>
+          )}
           <span style={{
             position: 'absolute', top: 10, right: 10,
             fontSize: 10, fontWeight: 700, letterSpacing: '.07em',

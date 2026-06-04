@@ -10,6 +10,7 @@ export function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const [user, setUser] = useState<User | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
@@ -33,8 +34,10 @@ export function Navbar() {
   }
 
   const links = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/fantasy',   label: 'Fantasy' },
+    { href: '/dashboard',  label: 'Dashboard' },
+    { href: '/fantasy',    label: 'Fantasy' },
+    { href: '/times',      label: 'Times' },
+    { href: '/jogadores',  label: 'Jogadores' },
     { href: '/comunidade', label: 'Comunidade' },
   ]
 
@@ -42,124 +45,114 @@ export function Navbar() {
   const initials = username.slice(0, 2).toUpperCase()
 
   return (
-    <header
-      style={{
-        height: 58,
-        background: 'rgba(5,8,15,.97)',
-        borderBottom: '1px solid var(--border)',
-        backdropFilter: 'blur(14px)',
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        zIndex: 300,
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 20px',
-        gap: 6,
-      }}
-    >
+    <header style={{
+      height: 58, background: 'rgba(5,8,15,.97)', borderBottom: '1px solid var(--border)',
+      backdropFilter: 'blur(14px)', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 300,
+      display: 'flex', alignItems: 'center', padding: '0 20px', gap: 6,
+    }}>
       {/* Logo */}
       <Link href="/dashboard" style={{ display: 'flex', flexDirection: 'column', marginRight: 12, textDecoration: 'none', flexShrink: 0 }}>
-        <span
-          className="font-condensed text-gradient-green"
-          style={{ fontWeight: 900, fontSize: 20, letterSpacing: '.06em', textTransform: 'uppercase', lineHeight: 1 }}
-        >
-          MyLine
-        </span>
-        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)' }}>
-          CS2
-        </span>
+        <span className="font-condensed text-gradient-green" style={{ fontWeight: 900, fontSize: 20, letterSpacing: '.06em', textTransform: 'uppercase', lineHeight: 1 }}>MyLine</span>
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)' }}>CS2</span>
       </Link>
 
       {/* Nav links */}
-      <nav style={{ display: 'flex', gap: 2 }}>
+      <nav style={{ display: 'flex', gap: 2, flex: 1 }}>
         {links.map((link) => {
           const active = pathname.startsWith(link.href)
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              style={{
-                background: active ? 'rgba(0,240,117,.08)' : 'transparent',
-                color: active ? 'var(--green)' : 'var(--text2)',
-                border: 'none',
-                borderRadius: 6,
-                padding: '7px 12px',
-                fontFamily: 'inherit',
-                fontSize: 13,
-                fontWeight: 600,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                transition: 'all .15s',
-              }}
-            >
+            <Link key={link.href} href={link.href} style={{
+              background: active ? 'rgba(0,240,117,.08)' : 'transparent',
+              color: active ? 'var(--green)' : 'var(--text2)',
+              border: 'none', borderRadius: 6, padding: '7px 11px',
+              fontFamily: 'inherit', fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              whiteSpace: 'nowrap', transition: 'all .15s',
+            }}>
               {link.label}
             </Link>
           )
         })}
       </nav>
 
-      {/* Right side */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         {/* Round pill */}
-        <div style={{
-          background: 'rgba(255,200,50,.06)',
-          border: '1px solid rgba(255,200,50,.2)',
-          borderRadius: 20,
-          padding: '5px 12px',
-          fontSize: 11,
-          color: 'var(--yellow)',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 5,
-          whiteSpace: 'nowrap',
-        }}>
+        <div style={{ background: 'rgba(255,200,50,.06)', border: '1px solid rgba(255,200,50,.2)', borderRadius: 20, padding: '5px 12px', fontSize: 11, color: 'var(--yellow)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--yellow)', display: 'inline-block', animation: 'blink 1.2s ease-in-out infinite' }} />
-          BLAST Bounty S2
+          BLAST S2
         </div>
 
         {user ? (
-          <>
-            <div
+          <div style={{ position: 'relative' }}>
+            {/* Avatar — clique abre menu */}
+            <button
+              onClick={() => setMenuOpen(o => !o)}
               style={{
-                width: 34, height: 34, borderRadius: '50%',
+                width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
                 background: 'linear-gradient(135deg, var(--green), var(--cyan))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 900, fontSize: 13, color: '#000', cursor: 'pointer', flexShrink: 0,
+                fontWeight: 900, fontSize: 13, color: '#000', cursor: 'pointer',
+                border: 'none', fontFamily: 'var(--font-condensed)',
               }}
               title={username}
             >
               {initials || '?'}
-            </div>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--border2)',
-                borderRadius: 6,
-                color: 'var(--text2)',
-                fontSize: 12,
-                fontWeight: 600,
-                padding: '5px 10px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              Sair
             </button>
-          </>
+
+            {/* Dropdown */}
+            {menuOpen && (
+              <>
+                {/* Overlay to close */}
+                <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setMenuOpen(false)} />
+                <div style={{
+                  position: 'absolute', top: 42, right: 0, zIndex: 20,
+                  background: 'var(--bg2)', border: '1px solid var(--border2)',
+                  borderRadius: 10, overflow: 'hidden', minWidth: 180,
+                  boxShadow: '0 8px 24px rgba(0,0,0,.4)',
+                }}>
+                  {/* User info */}
+                  <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--white)', marginBottom: 2 }}>{username}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text3)' }}>{user.email}</div>
+                  </div>
+                  {/* Menu items */}
+                  {[
+                    { href: '/perfil', label: '👤 Meu Perfil', },
+                    { href: '/fantasy', label: '🏆 Fantasy' },
+                    { href: '/dashboard', label: '📊 Dashboard' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} style={{
+                      display: 'block', padding: '10px 14px', fontSize: 13, fontWeight: 600,
+                      color: 'var(--text2)', textDecoration: 'none', transition: 'background .1s',
+                    }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg3)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  <div style={{ borderTop: '1px solid var(--border)' }}>
+                    <button onClick={() => { setMenuOpen(false); handleLogout() }} style={{
+                      display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px',
+                      fontSize: 13, fontWeight: 600, color: 'var(--red)', background: 'transparent',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit', transition: 'background .1s',
+                    }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,.06)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      🚪 Sair
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         ) : (
-          <Link
-            href="/login"
-            className="btn-green"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              borderRadius: 8, padding: '7px 14px',
-              fontFamily: 'inherit', fontSize: 12,
-              fontWeight: 700, textDecoration: 'none',
-              letterSpacing: '.06em', textTransform: 'uppercase',
-            }}
-          >
+          <Link href="/login" className="btn-green" style={{
+            display: 'flex', alignItems: 'center', borderRadius: 8, padding: '7px 14px',
+            fontFamily: 'inherit', fontSize: 12, fontWeight: 700, textDecoration: 'none',
+            letterSpacing: '.06em', textTransform: 'uppercase',
+          }}>
             Entrar
           </Link>
         )}

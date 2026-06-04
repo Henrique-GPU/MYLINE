@@ -14,26 +14,15 @@ export default function SignupPage() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const username = formData.get('username') as string
-
     const supabase = getSupabaseBrowserClient()
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username } },
-    })
-
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } })
     if (error) return { error: error.message }
-
-    if (!data.session) {
-      return { confirm: true, email }
-    }
-
+    if (!data.session) return { confirm: true, email }
     await fetch('/api/auth/cookie', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: data.session.access_token }),
     })
-
     router.push('/dashboard')
     router.refresh()
     return null
@@ -43,21 +32,14 @@ export default function SignupPage() {
 
   if (state && 'confirm' in state) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <div className="text-5xl mb-4">📧</div>
-          <h1 className="text-xl font-bold mb-2">Confirme seu email</h1>
-          <p className="text-foreground/50 text-sm mb-1">
-            Enviamos um link de confirmação para:
-          </p>
-          <p className="text-primary font-medium text-sm mb-6">{state.email}</p>
-          <p className="text-foreground/40 text-xs mb-6">
-            Clique no link do email e depois volte para fazer login.
-          </p>
-          <Link
-            href="/login"
-            className="inline-block w-full py-2.5 bg-primary text-black font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
-          >
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>📧</div>
+          <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 24, color: 'var(--white)', textTransform: 'uppercase', marginBottom: 8 }}>Confirme seu email</h1>
+          <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>Enviamos um link para:</p>
+          <p style={{ fontSize: 14, color: 'var(--green)', fontWeight: 700, marginBottom: 20 }}>{state.email}</p>
+          <p style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 24 }}>Clique no link do email e depois faça login.</p>
+          <Link href="/login" className="btn-green" style={{ display: 'inline-block', borderRadius: 8, padding: '10px 28px', fontSize: 13, fontWeight: 900, textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.06em', textTransform: 'uppercase' }}>
             Ir para o login
           </Link>
         </div>
@@ -66,70 +48,61 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-primary">MyLine</Link>
-          <p className="text-foreground/50 text-sm mt-2">Crie sua conta gratuita</p>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 500, height: 300, background: 'radial-gradient(ellipse, rgba(0,240,117,.06), transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <span className="font-condensed text-gradient-green" style={{ fontWeight: 900, fontSize: 32, letterSpacing: '.06em', textTransform: 'uppercase', lineHeight: 1, display: 'block' }}>MyLine</span>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--text3)' }}>CS2 FANTASY</span>
+          </Link>
         </div>
 
-        <form action={formAction} className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="username" className="text-sm font-medium text-foreground/70">Nome de usuário</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
-              placeholder="seu_nick"
-              className="bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-colors"
-            />
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+          <div style={{ height: 3, background: 'linear-gradient(90deg, var(--green), var(--cyan))' }} />
+          <div style={{ padding: '24px 24px 20px' }}>
+            <p className="font-condensed" style={{ fontWeight: 900, fontSize: 19, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 4 }}>Criar conta</p>
+            <p style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 20 }}>Junte-se ao MyLine CS2 gratuitamente</p>
+
+            <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                { name: 'username', label: 'Nome de usuário', type: 'text', placeholder: 'seu_nick', required: true },
+                { name: 'email',    label: 'Email',           type: 'email', placeholder: 'seu@email.com', required: true },
+                { name: 'password', label: 'Senha',           type: 'password', placeholder: 'mínimo 6 caracteres', required: true },
+              ].map(f => (
+                <div key={f.name} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text3)' }}>{f.label}</label>
+                  <input name={f.name} type={f.type} required={f.required} placeholder={f.placeholder} minLength={f.name === 'password' ? 6 : undefined} style={{
+                    background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8,
+                    padding: '10px 14px', color: 'var(--text)', fontSize: 14, fontFamily: 'inherit',
+                    outline: 'none', width: '100%',
+                  }} />
+                </div>
+              ))}
+
+              {state && 'error' in state && (
+                <div style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 8, padding: '9px 12px', fontSize: 12, color: 'var(--red)' }}>
+                  {state.error}
+                </div>
+              )}
+
+              <button type="submit" disabled={pending} className="btn-green" style={{
+                width: '100%', borderRadius: 8, padding: '11px', fontSize: 13, fontWeight: 900,
+                fontFamily: 'inherit', border: 'none', letterSpacing: '.06em', textTransform: 'uppercase',
+                cursor: pending ? 'not-allowed' : 'pointer', opacity: pending ? 0.6 : 1, marginTop: 4,
+              }}>
+                {pending ? 'Criando...' : 'Criar conta'}
+              </button>
+            </form>
           </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-foreground/70">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              placeholder="seu@email.com"
-              className="bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-colors"
-            />
+          <div style={{ padding: '14px 24px 20px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <span style={{ fontSize: 12, color: 'var(--text3)' }}>
+              Já tem conta?{' '}
+              <Link href="/login" style={{ color: 'var(--green)', fontWeight: 700, textDecoration: 'none' }}>Entrar</Link>
+            </span>
           </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-foreground/70">Senha</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              placeholder="mínimo 6 caracteres"
-              className="bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-colors"
-            />
-          </div>
-
-          {state && 'error' in state && (
-            <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
-              {state.error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full py-2.5 bg-primary text-black font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-          >
-            {pending ? 'Criando conta...' : 'Criar conta'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-foreground/50 mt-4">
-          Já tem conta?{' '}
-          <Link href="/login" className="text-primary hover:underline">Entrar</Link>
-        </p>
+        </div>
       </div>
     </div>
   )
