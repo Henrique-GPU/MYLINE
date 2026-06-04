@@ -86,9 +86,9 @@ function MatchCard({ m, highlight }: { m: typeof CONFRONTOS[0]; highlight?: bool
 }
 
 export function MercadoCenter({
-  championshipId, roundId, roundName, initialLc,
+  championshipId, roundId, roundName, initialLc, roundStatus,
 }: {
-  championshipId: string; roundId: string; roundName: string; initialLc: number
+  championshipId: string; roundId: string; roundName: string; initialLc: number; roundStatus?: string
 }) {
   const [players, setPlayers] = useState<PlayerWithPrice[]>([])
   const [lineup, setLineup] = useState<Slot[]>([])
@@ -162,6 +162,7 @@ export function MercadoCenter({
     load()
   }, [roundId])
 
+  const marketLocked = roundStatus === 'active' || roundStatus === 'finished'
   const spent = lineup.reduce((s, sl) => s + sl.player.price, 0)
   const remaining = initialLc - spent
   const projection = lineup.reduce((s, sl) => s + (sl.is_captain ? sl.player.projection * 2 : sl.player.projection), 0)
@@ -182,8 +183,8 @@ export function MercadoCenter({
   }
 
   function add(p: PlayerWithPrice) {
+    if (marketLocked) return
     const { ok } = canAddPlayer(p)
-    if (!ok) return
     setLineup(prev => [...prev, { player: p, is_captain: false }])
     setSelectedPlayer(null)
   }
@@ -257,6 +258,26 @@ export function MercadoCenter({
             💡 <strong style={{ color: 'var(--text2)' }}>Dica:</strong> Times que avançam mais rodadas jogam mais mapas e pontuam mais no Fantasy.
           </p>
         </div>
+
+        {/* ── MERCADO FECHADO ── */}
+        {marketLocked && (
+          <div style={{ marginBottom: 16, background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24 }}>🔒</span>
+            <div>
+              <div className="font-condensed" style={{ fontWeight: 900, fontSize: 15, color: 'var(--red)', textTransform: 'uppercase' }}>
+                {roundStatus === 'finished' ? 'Rodada Encerrada' : 'Mercado Fechado'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text3)' }}>
+                {roundStatus === 'finished'
+                  ? 'Esta rodada foi encerrada. Veja o ranking final.'
+                  : 'A rodada está em andamento. Sua lineup está salva e não pode ser alterada.'}
+              </div>
+            </div>
+            <a href={`/fantasy/${championshipId}/ranking`} style={{ marginLeft: 'auto', padding: '8px 16px', background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'var(--red)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Ver Ranking →
+            </a>
+          </div>
+        )}
 
         {/* ── PICK DA RODADA ── */}
         {players.length > 0 && (() => {

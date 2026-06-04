@@ -87,6 +87,7 @@ export default async function MercadoPage({
             roundId={round.id}
             roundName={round.round_name}
             initialLc={championship.initial_lc ?? 100000}
+            roundStatus={round.status}
           />
           </>
         )}
