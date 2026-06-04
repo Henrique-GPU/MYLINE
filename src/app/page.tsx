@@ -133,7 +133,7 @@ export default async function Home() {
               {(topPlayers ?? []).map((p, i) => {
                 const team = teamsById[p.team_id ?? '']
                 const color = ROLE_COLORS[p.role ?? ''] ?? '#5a6e90'
-                const logoUrl = team?.hltv_id ? `/api/img/team/${team.hltv_id}` : null
+                const logoUrl = null // HLTV CDN bloqueia hotlink — usar badge colorido
                 return (
                   <div key={p.id} style={{ background: 'var(--bg2)', border: `1px solid ${color}30`, borderRadius: 12, overflow: 'hidden', textAlign: 'center', padding: '16px 12px' }}>
                     <div style={{ position: 'relative', marginBottom: 10 }}>
@@ -148,9 +148,6 @@ export default async function Home() {
                     </div>
                     <div className="font-condensed" style={{ fontWeight: 900, fontSize: 15, color: 'var(--white)', marginBottom: 3, letterSpacing: '.03em' }}>{p.nickname}</div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, marginBottom: 8 }}>
-                      {logoUrl && (
-                        <Image src={logoUrl} alt={team?.name ?? ''} width={14} height={14} style={{ objectFit: 'contain' }} unoptimized />
-                      )}
                       <span style={{ fontSize: 10, color: 'var(--text3)' }}>{team?.name ?? '—'}</span>
                     </div>
                     <div style={{ background: `${color}15`, border: `1px solid ${color}30`, borderRadius: 6, padding: '4px 8px', display: 'inline-block' }}>
