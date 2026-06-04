@@ -11,141 +11,169 @@ type Championship = {
   created_at: string
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    upcoming: { label: 'Em breve', cls: 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20' },
-    active:   { label: 'Ao vivo',  cls: 'bg-primary/10 text-primary border-primary/20' },
-    finished: { label: 'Encerrado', cls: 'bg-foreground/10 text-foreground/40 border-foreground/10' },
-  }
-  const { label, cls } = map[status] ?? { label: status, cls: 'bg-foreground/10 text-foreground/40 border-foreground/10' }
-  return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${cls}`}>
-      {label}
-    </span>
-  )
-}
+const STATUS = {
+  active:   { label: 'AO VIVO', cls: 's-live',  dot: true },
+  upcoming: { label: 'EM BREVE', cls: 's-soon', dot: false },
+  finished: { label: 'ENCERRADO', cls: 's-done', dot: false },
+} as const
 
-function ChampionshipCard({ c }: { c: Championship }) {
-  return (
-    <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4 hover:border-primary/30 transition-colors">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="font-semibold text-base">{c.name}</h3>
-        <StatusBadge status={c.status} />
-      </div>
-
-      <div className="text-xs text-foreground/40">
-        Orçamento inicial: <span className="text-primary font-mono">{c.initial_lc.toLocaleString('pt-BR')} LC</span>
-      </div>
-
-      <div className="flex gap-2 pt-1">
-        {c.status === 'active' && (
-          <>
-            <Link
-              href={`/fantasy/${c.id}/mercado`}
-              className="flex-1 text-center py-2 bg-primary text-black text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              Montar lineup
-            </Link>
-            <Link
-              href={`/fantasy/${c.id}/ranking`}
-              className="flex-1 text-center py-2 bg-surface-2 border border-border text-sm rounded-lg hover:border-primary/30 transition-colors"
-            >
-              Ranking
-            </Link>
-          </>
-        )}
-        {c.status === 'upcoming' && (
-          <Link
-            href={`/fantasy/${c.id}/mercado`}
-            className="flex-1 text-center py-2 bg-primary text-black text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-          >
-            Ver mercado
-          </Link>
-        )}
-        {c.status === 'finished' && (
-          <Link
-            href={`/fantasy/${c.id}/ranking`}
-            className="flex-1 text-center py-2 bg-surface-2 border border-border text-sm rounded-lg hover:border-foreground/20 transition-colors"
-          >
-            Ver resultado final
-          </Link>
-        )}
-      </div>
-    </div>
-  )
+const BANNERS: Record<string, string> = {
+  active:   'linear-gradient(135deg,#001a0a 0%,#002a12 100%)',
+  upcoming: 'linear-gradient(135deg,#0a0800 0%,#1a1200 100%)',
+  finished: 'linear-gradient(135deg,#080808 0%,#121212 100%)',
 }
 
 export default async function FantasyPage() {
   const supabase = getSupabaseServerClient()
-  const { data: championships } = await supabase
+  const { data } = await supabase
     .from('championships')
     .select('id, name, status, initial_lc, banner_url, created_at')
     .order('created_at', { ascending: false })
 
-  const list = (championships ?? []) as Championship[]
-  const active   = list.filter((c) => c.status === 'active')
-  const upcoming = list.filter((c) => c.status === 'upcoming')
-  const finished = list.filter((c) => c.status === 'finished')
+  const list = (data ?? []) as Championship[]
+  const active   = list.filter(c => c.status === 'active')
+  const upcoming = list.filter(c => c.status === 'upcoming')
+  const finished = list.filter(c => c.status === 'finished')
+
+  function Card({ c }: { c: Championship }) {
+    const s = STATUS[c.status as keyof typeof STATUS] ?? STATUS.finished
+    const bg = BANNERS[c.status] ?? BANNERS.finished
+
+    return (
+      <div style={{
+        background: 'var(--bg2)', border: '1px solid var(--border)',
+        borderRadius: 12, overflow: 'hidden', transition: 'all .2s',
+      }}
+        className="hover-card hover-card-green"
+      >
+        {/* Banner */}
+        <div style={{
+          height: 90, background: bg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 44, position: 'relative',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          🏆
+          <span style={{
+            position: 'absolute', top: 10, right: 10,
+            fontSize: 10, fontWeight: 700, letterSpacing: '.07em',
+            padding: '3px 9px', borderRadius: 20,
+          }}
+            className={s.cls}
+          >
+            {s.dot && <span style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'currentColor', marginRight:5, animation:'blink .9s ease-in-out infinite', verticalAlign:'middle' }} />}
+            {s.label}
+          </span>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '14px 16px' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 4 }}>
+            BLAST Premier
+          </p>
+          <h3 className="font-condensed" style={{ fontWeight: 900, fontSize: 19, color: 'var(--white)', letterSpacing: '.03em', marginBottom: 10 }}>
+            {c.name}
+          </h3>
+
+          <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Orçamento</div>
+              <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--white)' }}>
+                {c.initial_lc.toLocaleString('pt-BR')} LC
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 2 }}>Jogadores</div>
+              <div className="font-tech" style={{ fontSize: 14, fontWeight: 700, color: 'var(--white)' }}>5 por lineup</div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="font-tech" style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)' }}>
+              32 times · 160 jogadores
+            </span>
+            <Link
+              href={`/fantasy/${c.id}/mercado`}
+              className="btn-green"
+              style={{ borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.04em' }}
+            >
+              {c.status === 'finished' ? 'Ver resultado' : 'Montar lineup'}
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-1">Fantasy Oficial</h1>
-          <p className="text-foreground/50 text-sm">
-            Monte sua lineup com 100.000 LC e dispute o ranking a cada rodada.
-          </p>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }} className="page-animate">
+
+        <div style={{ marginBottom: 24 }}>
+          <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 26, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 3 }}>
+            Fantasy Oficial
+          </h1>
+          <p style={{ color: 'var(--text3)', fontSize: 13 }}>Monte sua lineup com 100.000 LC e dispute o ranking a cada rodada.</p>
         </div>
 
         {list.length === 0 && (
-          <div className="bg-surface border border-border rounded-xl p-12 text-center">
-            <p className="text-4xl mb-4">🏆</p>
-            <p className="text-foreground/50">Nenhum campeonato disponível no momento.</p>
+          <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text3)', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12 }}>
+            <div style={{ fontSize: 36, marginBottom: 10 }}>🏆</div>
+            <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 4 }}>Nenhum campeonato disponível no momento.</p>
           </div>
         )}
 
         {active.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Ao vivo</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {active.map((c) => <ChampionshipCard key={c.id} c={c} />)}
+          <section style={{ marginBottom: 28 }}>
+            <p className="section-title font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+              AO VIVO <span style={{ flex:1, height:1, background:'var(--border)', display:'block' }} />
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px,1fr))', gap: 12 }}>
+              {active.map(c => <Card key={c.id} c={c} />)}
             </div>
           </section>
         )}
 
         {upcoming.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Em breve</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {upcoming.map((c) => <ChampionshipCard key={c.id} c={c} />)}
+          <section style={{ marginBottom: 28 }}>
+            <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+              EM BREVE <span style={{ flex:1, height:1, background:'var(--border)', display:'block' }} />
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px,1fr))', gap: 12 }}>
+              {upcoming.map(c => <Card key={c.id} c={c} />)}
             </div>
           </section>
         )}
 
         {finished.length > 0 && (
           <section>
-            <h2 className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-4">Encerrados</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {finished.map((c) => <ChampionshipCard key={c.id} c={c} />)}
+            <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+              ENCERRADOS <span style={{ flex:1, height:1, background:'var(--border)', display:'block' }} />
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px,1fr))', gap: 12 }}>
+              {finished.map(c => <Card key={c.id} c={c} />)}
             </div>
           </section>
         )}
 
-        <div className="mt-10 bg-surface border border-border rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-foreground/40 uppercase tracking-wider mb-3">Como funciona</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        {/* How it works */}
+        <div style={{ marginTop: 32, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
+          <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+            COMO FUNCIONA <span style={{ flex:1, height:1, background:'var(--border)', display:'block' }} />
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px,1fr))', gap: 16 }}>
             {[
-              { n: '1', t: 'Escolha jogadores', d: 'Monte sua lineup com até 5 jogadores dentro do orçamento de 100.000 LC.' },
-              { n: '2', t: 'Acompanhe rodada', d: 'Pontos são calculados automaticamente com base nas stats reais do HLTV.' },
-              { n: '3', t: 'Suba no ranking', d: 'Cada rodada atualiza seu ranking. Melhor desempenho = mais visibilidade.' },
-            ].map((item) => (
-              <div key={item.n} className="flex gap-3">
-                <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              { n:'1', t:'Escolha jogadores', d:'Monte sua lineup com até 5 jogadores dentro do orçamento de 100.000 LC.' },
+              { n:'2', t:'Acompanhe rodada',  d:'Pontos são calculados automaticamente com base nas stats reais do HLTV.' },
+              { n:'3', t:'Suba no ranking',   d:'Cada rodada atualiza seu ranking. Melhor desempenho = mais visibilidade.' },
+            ].map(item => (
+              <div key={item.n} style={{ display:'flex', gap:12 }}>
+                <span style={{ width:28, height:28, borderRadius:'50%', background:'rgba(0,240,117,.12)', color:'var(--green)', fontSize:13, fontWeight:900, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   {item.n}
                 </span>
                 <div>
-                  <p className="font-medium text-foreground/80">{item.t}</p>
-                  <p className="text-foreground/40 text-xs mt-0.5">{item.d}</p>
+                  <p style={{ fontWeight:700, color:'var(--white)', fontSize:13, marginBottom:3 }}>{item.t}</p>
+                  <p style={{ fontSize:12, color:'var(--text3)', lineHeight:1.55 }}>{item.d}</p>
                 </div>
               </div>
             ))}
