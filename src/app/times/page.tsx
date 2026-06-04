@@ -1,27 +1,21 @@
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { TeamLogo } from '@/components/teams/team-logo'
 
-// Logos reais via Liquipedia proxy
-const LP = 'https://liquipedia.net'
+// Logos confirmados via Liquipedia (proxy server-side)
 const TEAM_LOGOS: Record<string, string> = {
-  'Vitality':          `${LP}/commons/images/thumb/e/e4/Team_Vitality_2023_lightmode.png/120px-Team_Vitality_2023_lightmode.png`,
-  'MOUZ':              `${LP}/commons/images/thumb/a/a5/MOUZ_2021_full_allmode.png/120px-MOUZ_2021_full_allmode.png`,
-  'The MongolZ':       `${LP}/commons/images/thumb/e/e9/The_MongolZ_lightmode.png/120px-The_MongolZ_lightmode.png`,
-  'Spirit':            `${LP}/commons/images/thumb/6/66/Team_Spirit_2022_lightmode.png/120px-Team_Spirit_2022_lightmode.png`,
-  'FaZe':              `${LP}/commons/images/thumb/f/f9/FaZe_Esports_2026_lightmode.png/120px-FaZe_Esports_2026_lightmode.png`,
-  'FURIA':             `${LP}/commons/images/thumb/a/aa/FURIA_Esports_allmode.png/120px-FURIA_Esports_allmode.png`,
-  'Natus Vincere':     `${LP}/commons/images/thumb/3/3f/Natus_Vincere_2021_lightmode.png/120px-Natus_Vincere_2021_lightmode.png`,
-  'Astralis':          `${LP}/commons/images/thumb/b/b5/Astralis_2020_full_allmode.png/120px-Astralis_2020_full_allmode.png`,
-  'G2':                `${LP}/commons/images/thumb/2/27/G2_Esports_2020_full_lightmode.png/120px-G2_Esports_2020_full_lightmode.png`,
-  'Team Liquid':       `${LP}/commons/images/thumb/f/f5/Team_Liquid_2024_full_lightmode.png/120px-Team_Liquid_2024_full_lightmode.png`,
-  'HEROIC':            `${LP}/commons/images/thumb/0/0d/HEROIC_2024_allmode.png/120px-HEROIC_2024_allmode.png`,
-  'Ninjas in Pyjamas': `${LP}/commons/images/thumb/4/42/Ninjas_in_Pyjamas_2021_full_lightmode.png/120px-Ninjas_in_Pyjamas_2021_full_lightmode.png`,
-  'MIBR':              `${LP}/commons/images/thumb/8/85/MIBR_2023_lightmode.png/120px-MIBR_2023_lightmode.png`,
-  'Virtus.pro':        `${LP}/commons/images/thumb/7/74/Virtus.pro_2022_lightmode.png/120px-Virtus.pro_2022_lightmode.png`,
-  'paiN':              `${LP}/commons/images/thumb/7/73/Pain_Gaming_allmode.png/120px-Pain_Gaming_allmode.png`,
-  'Legacy':            `${LP}/commons/images/thumb/c/cf/Legacy_Esports_allmode.png/120px-Legacy_Esports_allmode.png`,
-  'BIG':               `${LP}/commons/images/thumb/8/8f/BIG_2021_lightmode.png/120px-BIG_2021_lightmode.png`,
-  'fnatic':            `${LP}/commons/images/thumb/b/b4/Fnatic_2020_darkmode.png/120px-Fnatic_2020_darkmode.png`,
+  'Vitality':          '/api/img/lp/thumb/e/e4/Team_Vitality_2023_lightmode.png/120px-Team_Vitality_2023_lightmode.png',
+  'MOUZ':              '/api/img/lp/thumb/a/a5/MOUZ_2021_full_allmode.png/120px-MOUZ_2021_full_allmode.png',
+  'Spirit':            '/api/img/lp/thumb/6/66/Team_Spirit_2022_lightmode.png/120px-Team_Spirit_2022_lightmode.png',
+  'FaZe':              '/api/img/lp/thumb/f/f9/FaZe_Esports_2026_lightmode.png/120px-FaZe_Esports_2026_lightmode.png',
+  'FURIA':             '/api/img/lp/thumb/a/aa/FURIA_Esports_allmode.png/120px-FURIA_Esports_allmode.png',
+  'Natus Vincere':     '/api/img/lp/thumb/3/3f/Natus_Vincere_2021_lightmode.png/120px-Natus_Vincere_2021_lightmode.png',
+  'Astralis':          '/api/img/lp/thumb/b/b5/Astralis_2020_full_allmode.png/120px-Astralis_2020_full_allmode.png',
+  'G2':                '/api/img/lp/thumb/2/27/G2_Esports_2020_full_lightmode.png/120px-G2_Esports_2020_full_lightmode.png',
+  'Team Liquid':       '/api/img/lp/thumb/f/f5/Team_Liquid_2024_full_lightmode.png/120px-Team_Liquid_2024_full_lightmode.png',
+  'HEROIC':            '/api/img/lp/thumb/0/0d/HEROIC_2024_allmode.png/120px-HEROIC_2024_allmode.png',
+  'Ninjas in Pyjamas': '/api/img/lp/thumb/4/42/Ninjas_in_Pyjamas_2021_full_lightmode.png/120px-Ninjas_in_Pyjamas_2021_full_lightmode.png',
+  'Virtus.pro':        '/api/img/lp/thumb/7/74/Virtus.pro_2022_lightmode.png/120px-Virtus.pro_2022_lightmode.png',
 }
 
 // Cores oficiais dos times (fallback)
@@ -114,21 +108,15 @@ export default async function TimesPage() {
             const brand = TEAM_COLORS[team.name] ?? { bg: '#1a1a2e', color: '#00d4ff', abbr: team.name.slice(0, 3).toUpperCase() }
             const abbr = brand.abbr ?? team.name.slice(0, 3).toUpperCase()
             const topPrice = Math.max(...roster.map(p => p.price_lc ?? 0), 0)
-            const logoUrl = TEAM_LOGOS[team.name]
-              ? `/api/img/lp/thumb/${TEAM_LOGOS[team.name].split('/thumb/')[1]}`
-              : null
+            const logoUrl = TEAM_LOGOS[team.name] ?? null
 
             return (
               <div key={team.id} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
                 {/* Header with team brand */}
                 <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12, background: `${brand.bg}10`, borderTop: `3px solid ${brand.bg}` }}>
                   {/* Logo */}
-                  <div style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: logoUrl ? 'rgba(255,255,255,.05)' : brand.bg, boxShadow: logoUrl ? 'none' : `0 0 12px ${brand.bg}40`, border: `1px solid ${brand.bg}30`, padding: logoUrl ? 4 : 0 }}>
-                    {logoUrl ? (
-                      <img src={logoUrl} alt={team.name} width={36} height={36} style={{ objectFit: 'contain' }} />
-                    ) : (
-                      <span style={{ fontSize: abbr.length > 3 ? 9 : 11, fontWeight: 900, color: brand.color, fontFamily: 'var(--font-condensed)', letterSpacing: '.04em' }}>{abbr}</span>
-                    )}
+                  <div style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: logoUrl ? 'rgba(255,255,255,.05)' : brand.bg, boxShadow: `0 0 12px ${brand.bg}40`, border: `1px solid ${brand.bg}30`, padding: logoUrl ? 4 : 0 }}>
+                    <TeamLogo logoUrl={logoUrl} teamName={team.name} abbr={abbr} brandColor={brand.color} size={44} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <span className="font-condensed" style={{ fontWeight: 900, fontSize: 16, color: 'var(--white)', letterSpacing: '.04em' }}>{team.name}</span>
