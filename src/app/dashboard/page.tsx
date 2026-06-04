@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { getEventMeta } from '@/lib/events'
+import { getEventMeta, getBannerUrl } from '@/lib/events'
 
 export default async function DashboardPage() {
   const supabase = getSupabaseServerClient()
@@ -61,74 +61,77 @@ export default async function DashboardPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
 
-          {/* Championships */}
+          {/* Championships — Agenda */}
           <div>
-            <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              CAMPEONATOS <span style={{ flex: 1, height: 1, background: 'var(--border)', display: 'block' }} />
+            <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              AGENDA CS2 2026 <span style={{ flex: 1, height: 1, background: 'var(--border)', display: 'block' }} />
               <Link href="/fantasy" style={{ fontSize: 10, color: 'var(--green)', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</Link>
             </p>
 
             {(championships ?? []).length === 0 ? (
               <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: '32px', textAlign: 'center' }}>
-                <div style={{ fontSize: 32, marginBottom: 10 }}>🏆</div>
-                <p style={{ fontSize: 13, color: 'var(--text3)' }}>Nenhum campeonato disponível.</p>
+                <p style={{ fontSize: 13, color: 'var(--text3)' }}>Nenhum evento disponível.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {(championships ?? []).map(c => {
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {(championships ?? []).map((c, i) => {
                   const s = STATUS_LABEL[c.status] ?? STATUS_LABEL.finished
                   const meta = getEventMeta(c.name)
+                  const bannerUrl = getBannerUrl(c.name)
                   const accent = meta.accentColor
-                  const isBlast = c.name.toLowerCase().includes('blast')
+                  const isActive = c.status === 'active'
                   return (
-                    <div key={c.id} style={{ background: 'var(--bg2)', border: `1px solid ${accent}20`, borderRadius: 12, overflow: 'hidden', transition: 'all .2s' }}
+                    <div key={c.id} style={{
+                      background: isActive ? `${accent}0d` : 'var(--bg2)',
+                      border: `1px solid ${isActive ? accent + '30' : 'var(--border)'}`,
+                      borderRadius: 10, overflow: 'hidden',
+                      borderLeft: `3px solid ${accent}`,
+                      transition: 'all .2s',
+                    }}
                       className="hover-card">
-                      {/* Top accent line */}
-                      <div style={{ height: 2, background: `linear-gradient(90deg, ${accent}, ${accent}44)` }} />
-                      {/* Banner */}
-                      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', overflow: 'hidden' }}>
-                        {/* Background glow */}
-                        <div style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 120, height: 80, background: `radial-gradient(ellipse, ${accent}18, transparent 70%)`, pointerEvents: 'none' }} />
-                        {/* MyLine logo mark */}
-                        <div style={{ width: 40, height: 40, borderRadius: 8, background: `${accent}15`, border: `1px solid ${accent}35`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {isBlast ? (
-                            <span style={{ fontSize: 18 }}>🏆</span>
-                          ) : (
-                            <>
-                              <span className="font-condensed text-gradient-green" style={{ fontWeight: 900, fontSize: 10, letterSpacing: '.04em', lineHeight: 1 }}>ML</span>
-                              <span style={{ fontSize: 7, color: 'var(--text3)', letterSpacing: '.1em' }}>CS2</span>
-                            </>
-                          )}
+                      {/* Background image subtle */}
+                      {bannerUrl && (
+                        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: 10, pointerEvents: 'none' }}>
+                          <img src={bannerUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: .04, filter: 'blur(2px)' }} />
                         </div>
-                        {/* Info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--white)', letterSpacing: '.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{meta.flagEmoji} {meta.location} · {meta.dates}</span>
-                            <span className="font-tech" style={{ fontSize: 10, color: meta.prize !== '—' ? 'var(--gold)' : 'var(--text3)', fontWeight: 700 }}>{meta.prize}</span>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', position: 'relative' }}>
+                        {/* Date column */}
+                        <div style={{ width: 52, flexShrink: 0, textAlign: 'center', background: `${accent}12`, border: `1px solid ${accent}25`, borderRadius: 8, padding: '6px 4px' }}>
+                          <div className="font-condensed" style={{ fontWeight: 900, fontSize: 16, color: accent, lineHeight: 1 }}>
+                            {meta.startDate.split('-')[2]}
+                          </div>
+                          <div style={{ fontSize: 9, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em' }}>
+                            {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(meta.startDate.split('-')[1]) - 1]}
                           </div>
                         </div>
-                        <span className={s.cls} style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.07em', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>
-                          {s.label}
-                        </span>
-                      </div>
-                      {/* Actions */}
-                      <div style={{ padding: '0 12px 12px', display: 'flex', gap: 8 }}>
-                        <Link href={`/fantasy/${c.id}/mercado`} style={{
-                          flex: 1, textAlign: 'center', padding: '8px',
-                          background: `linear-gradient(90deg, ${accent}, ${accent}aa)`,
-                          color: '#000', fontWeight: 900, fontSize: 11, borderRadius: 7,
-                          textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.06em', textTransform: 'uppercase',
-                        }}>
-                          ⚡ Montar Lineup
-                        </Link>
-                        <Link href={`/fantasy/${c.id}/ranking`} style={{
-                          padding: '8px 14px', background: 'var(--bg3)', color: 'var(--text2)',
-                          fontWeight: 600, fontSize: 11, borderRadius: 7, textDecoration: 'none',
-                          fontFamily: 'inherit', border: '1px solid var(--border)', whiteSpace: 'nowrap',
-                        }}>
-                          Ranking
-                        </Link>
+
+                        {/* Event info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="font-condensed" style={{ fontWeight: 900, fontSize: 14, color: 'var(--white)', letterSpacing: '.02em', lineHeight: 1.2 }}>
+                            {c.name}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{meta.flagEmoji} {meta.location}</span>
+                            <span style={{ fontSize: 9, color: 'var(--text3)' }}>·</span>
+                            <span style={{ fontSize: 10, color: 'var(--text3)' }}>{meta.dates}</span>
+                            <span style={{ fontSize: 9, color: 'var(--text3)' }}>·</span>
+                            <span className="font-tech" style={{ fontSize: 10, fontWeight: 700, color: 'var(--gold)' }}>{meta.prize}</span>
+                          </div>
+                        </div>
+
+                        {/* Status + action */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <span className={s.cls} style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20 }}>{s.label}</span>
+                          <Link href={`/fantasy/${c.id}`} style={{
+                            padding: '6px 12px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                            background: `linear-gradient(90deg, ${accent}, ${accent}bb)`,
+                            color: '#000', textDecoration: 'none', fontFamily: 'inherit',
+                            whiteSpace: 'nowrap', letterSpacing: '.04em', textTransform: 'uppercase',
+                          }}>
+                            ⚡ Lineup
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   )

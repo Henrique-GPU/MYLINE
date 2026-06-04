@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { getEventMeta } from '@/lib/events'
+import { getEventMeta, getBannerUrl } from '@/lib/events'
 
 type Championship = {
   id: string
@@ -38,6 +38,7 @@ export default async function FantasyPage() {
     const isESL   = c.name.toLowerCase().includes('esl')
     const isFissure = c.name.toLowerCase().includes('fissure')
     const accent = meta.accentColor
+    const bannerUrl = getBannerUrl(c.name)
 
     // Background gradient by organizer
     const bgGradient = isBlast
@@ -60,9 +61,9 @@ export default async function FantasyPage() {
       >
         {/* ── BANNER ── */}
         <div style={{ height: 150, position: 'relative', overflow: 'hidden', background: bgGradient }}>
-          {/* Background image for BLAST events */}
-          {isBlast && (
-            <img src="/api/img/blast" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', opacity: .45 }} />
+          {/* Banner image (BLAST, EWC, ESL) */}
+          {bannerUrl && (
+            <img src={bannerUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', opacity: .48 }} />
           )}
           {/* Color overlay */}
           <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to bottom, rgba(1,0,10,.2) 0%, transparent 40%, rgba(1,0,10,.88) 100%)` }} />
@@ -110,9 +111,28 @@ export default async function FantasyPage() {
             ))}
           </div>
 
+          {/* Invited teams mini */}
+          {meta.invitedTeams.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <span style={{ fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Times:</span>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {meta.invitedTeams.slice(0, 6).map(team => (
+                  <div key={team} style={{ fontSize: 8, fontWeight: 700, color: 'var(--text2)', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 4, padding: '2px 5px', whiteSpace: 'nowrap' }}>
+                    {team.replace('Natus Vincere','NaVi').replace('Ninjas in Pyjamas','NiP').replace('The MongolZ','MON').replace('Team Liquid','LIQ')}
+                  </div>
+                ))}
+                {meta.invitedTeams.length < meta.teams && (
+                  <div style={{ fontSize: 8, color: 'var(--text3)', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 4, padding: '2px 5px' }}>
+                    +{meta.teams - meta.invitedTeams.length}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* CTA */}
           <Link
-            href={`/fantasy/${c.id}/mercado`}
+            href={`/fantasy/${c.id}`}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               width: '100%', padding: '11px',
@@ -128,9 +148,14 @@ export default async function FantasyPage() {
             {c.status === 'finished' ? 'Ver resultado' : c.status === 'active' ? 'Entrar agora' : 'Montar lineup'}
           </Link>
           {c.status !== 'finished' && (
-            <Link href={`/fantasy/${c.id}/ranking`} style={{ display: 'block', textAlign: 'center', marginTop: 8, fontSize: 11, color: 'var(--text3)', textDecoration: 'none', fontWeight: 600 }}>
-              Ver ranking →
-            </Link>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <Link href={`/fantasy/${c.id}/mercado`} style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'var(--text3)', textDecoration: 'none', fontWeight: 600, padding: '5px', background: 'var(--bg3)', borderRadius: 6, border: '1px solid var(--border)' }}>
+                Mercado
+              </Link>
+              <Link href={`/fantasy/${c.id}/ranking`} style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'var(--text3)', textDecoration: 'none', fontWeight: 600, padding: '5px', background: 'var(--bg3)', borderRadius: 6, border: '1px solid var(--border)' }}>
+                Ranking
+              </Link>
+            </div>
           )}
         </div>
       </div>
