@@ -46,7 +46,8 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'steam' as Parameters<typeof supabase.auth.signInWithOAuth>[0]['provider'],
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo: `${window.location.origin}/steam/callback`,
+        scopes: 'openid',
       },
     })
   }

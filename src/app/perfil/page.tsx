@@ -201,9 +201,32 @@ export default function PerfilPage() {
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--cyan)' }}>Membro desde {stats.memberSince}</span>
                 </div>
               </div>
-              <Link href="/fantasy" style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', textDecoration: 'none', background: 'rgba(0,240,117,.08)', border: '1px solid rgba(0,240,117,.25)', borderRadius: 7, padding: '8px 16px', marginTop: 8 }}>
-                → Ir ao Mercado
-              </Link>
+              <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                <Link href="/fantasy" style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', textDecoration: 'none', background: 'rgba(0,240,117,.08)', border: '1px solid rgba(0,240,117,.25)', borderRadius: 7, padding: '8px 16px' }}>
+                  → Ir ao Mercado
+                </Link>
+                {/* Steam connect — mostra se não tem provider Steam */}
+                {!user.app_metadata?.provider?.includes('steam') && (
+                  <button
+                    onClick={async () => {
+                      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client')
+                      const supabase = getSupabaseBrowserClient()
+                      await supabase.auth.signInWithOAuth({
+                        provider: 'steam' as Parameters<typeof supabase.auth.signInWithOAuth>[0]['provider'],
+                        options: { redirectTo: `${window.location.origin}/steam/callback` },
+                      })
+                    }}
+                    style={{ fontSize: 12, fontWeight: 700, color: '#c6d4df', background: 'linear-gradient(135deg,#1b2838,#2a475e)', border: '1px solid rgba(103,193,245,.2)', borderRadius: 7, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    🎮 Conectar Steam
+                  </button>
+                )}
+                {user.app_metadata?.provider === 'steam' && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(103,193,245,.08)', border: '1px solid rgba(103,193,245,.2)', borderRadius: 7, padding: '8px 12px', fontSize: 12, color: '#c6d4df', fontWeight: 600 }}>
+                    🎮 Steam conectado
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* ── MOEDA CS2 ── */}

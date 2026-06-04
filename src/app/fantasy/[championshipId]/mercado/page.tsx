@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { MercadoCenter } from '@/components/fantasy/mercado-center'
+import { MarketNotifier } from '@/components/arena/market-notifier'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getEventMeta } from '@/lib/events'
 
@@ -76,12 +77,18 @@ export default async function MercadoPage({
             <p style={{ color: 'var(--text3)' }}>Nenhuma rodada disponível no momento.</p>
           </div>
         ) : (
+          <>
+          <MarketNotifier
+            marketCloseTime={Date.now() + 2 * 60 * 60 * 1000}
+            championshipName={championship.name}
+          />
           <MercadoCenter
             championshipId={championshipId}
             roundId={round.id}
             roundName={round.round_name}
             initialLc={championship.initial_lc ?? 100000}
           />
+          </>
         )}
       </div>
     </AppLayout>
