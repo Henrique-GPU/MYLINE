@@ -35,9 +35,12 @@ export async function GET(request: Request) {
     if (player) { steamName = player.personaname ?? steamName; steamAvatar = player.avatarfull ?? '' }
   } catch { /* sem perfil */ }
 
+  // Remove BOM e espaços que o PowerShell pode adicionar às env vars
+  const cleanKey = (k?: string) => (k ?? '').replace(/^﻿/, '').trim()
+
   const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    cleanKey(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    cleanKey(process.env.SUPABASE_SERVICE_ROLE_KEY),
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
@@ -63,8 +66,8 @@ export async function GET(request: Request) {
 
   // 5. Login com email/senha
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    cleanKey(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    cleanKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   )
 
   const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
