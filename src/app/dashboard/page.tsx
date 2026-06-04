@@ -19,13 +19,20 @@ export default async function ArenaPage() {
   const [
     { data: championships },
     { count: lineupsCount },
+    { data: champsWithMarket },
   ] = await Promise.all([
     supabase.from('championships')
       .select('id, name, status, initial_lc')
       .order('created_at', { ascending: true })
       .limit(6),
     supabase.from('lineups').select('*', { count: 'exact', head: true }),
+    // Campeonatos que têm mercado configurado (player_prices)
+    supabase.from('player_prices')
+      .select('championship_id')
+      .limit(100),
   ])
+
+  const champIdsWithMarket = new Set((champsWithMarket ?? []).map(p => p.championship_id))
 
   const activeChamp = (championships ?? []).find(c => c.status === 'active')
     ?? (championships ?? []).find(c => c.status === 'upcoming')
@@ -51,7 +58,7 @@ export default async function ArenaPage() {
             "Tenho um time." / "Preciso ajustar minha lineup."
         ══════════════════════════════════════════ */}
         {/* ── MINHAS LINEUPS — uma por campeonato ativo/em breve ── */}
-        {(championships ?? []).filter(c => c.status === 'active' || c.status === 'upcoming').length > 0 && (
+        {(championships ?? []).filter(c => (c.status === 'active' || c.status === 'upcoming') && champIdsWithMarket.has(c.id)).length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               ⭐ MINHAS LINEUPS
@@ -60,7 +67,7 @@ export default async function ArenaPage() {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px,1fr))', gap: 14 }}>
               {(championships ?? [])
-                .filter(c => c.status === 'active' || c.status === 'upcoming')
+                .filter(c => (c.status === 'active' || c.status === 'upcoming') && champIdsWithMarket.has(c.id))
                 .map(champ => {
                   const champMeta = getEventMeta(champ.name)
                   const roundMap: Record<string, string> = {
