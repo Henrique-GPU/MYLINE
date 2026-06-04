@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getEventMeta, getBannerUrl } from '@/lib/events'
 import { ChampionshipsClient } from '@/components/fantasy/championships-client'
+import { ChampionshipCountdown } from '@/components/fantasy/championship-countdown'
 
 export default async function FantasyPage() {
   const supabase = getSupabaseServerClient()
@@ -25,6 +26,23 @@ export default async function FantasyPage() {
   return (
     <AppLayout>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px 40px' }} className="page-animate">
+
+        {/* Countdown do próximo campeonato */}
+        {championships.length > 0 && (() => {
+          const next = championships.find(c => c.status === 'upcoming') ?? championships[0]
+          const meta = metas[next.name]
+          return (
+            <ChampionshipCountdown
+              championshipId={next.id}
+              championshipName={next.name}
+              startDate={meta.startDate}
+              accentColor={meta.accentColor}
+              prize={meta.prize}
+              location={meta.location}
+              flagEmoji={meta.flagEmoji}
+            />
+          )
+        })()}
 
         <div style={{ marginBottom: 22 }}>
           <h1 className="font-condensed" style={{ fontWeight: 900, fontSize: 26, color: 'var(--white)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 3 }}>
