@@ -19,6 +19,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const justConfirmed = searchParams.get('confirm') === '1'
+  const urlError = searchParams.get('error')
 
   async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
     const email = formData.get('email') as string
@@ -58,6 +59,11 @@ function LoginForm() {
         {justConfirmed && (
           <div style={{ background: 'rgba(0,240,117,.08)', border: '1px solid rgba(0,240,117,.25)', borderRadius: 8, padding: '10px 12px', marginBottom: 16, fontSize: 12, color: 'var(--green)' }}>
             ✓ Conta criada! Confirme seu email e faça login.
+          </div>
+        )}
+        {urlError && (
+          <div style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.25)', borderRadius: 8, padding: '10px 12px', marginBottom: 16, fontSize: 12, color: 'var(--red)' }}>
+            Erro Steam: {urlError}
           </div>
         )}
 
