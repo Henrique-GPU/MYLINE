@@ -135,8 +135,7 @@ export default async function TimesPage() {
                         borderBottom: i < roster.length - 1 ? '1px solid var(--border)' : 'none',
                         transition: 'background .1s',
                       }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.02)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                        className="hover-card"
                       >
                         {/* Role color dot */}
                         <div style={{ width: 4, height: 28, borderRadius: 2, background: role.color, flexShrink: 0, opacity: .7 }} />
