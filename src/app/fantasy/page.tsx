@@ -54,6 +54,14 @@ export default async function FantasyPage() {
             ? 'linear-gradient(180deg, #02010a 0%, #0d0300 40%, #1a0500 70%, #2a0800 100%)'
             : BANNERS[c.status] ?? BANNERS.finished,
         }}>
+          {/* Real BLAST arena image */}
+          {isBlast && (
+            <img
+              src="/api/img/blast"
+              alt="BLAST Arena"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: .45, mixBlendMode: 'luminosity' }}
+            />
+          )}
           {isBlast && (
             <>
               {/* Arena floor glow — cone of orange light from bottom */}
