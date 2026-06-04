@@ -119,21 +119,14 @@ export function MercadoCenter({
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
 
-    async function loadLineup(merged: PlayerWithPrice[]) {
-      // Aguarda sessão estar pronta antes de carregar lineup
-      let user = (await supabase.auth.getUser()).data.user
-      if (!user) {
-        // Tenta mais uma vez após pequena espera (sessão pode ainda estar carregando)
-        await new Promise(r => setTimeout(r, 800))
-        user = (await supabase.auth.getUser()).data.user
-      }
-      if (!user) return
-
-      const { data: ex } = await supabase.from('lineups').select('id').eq('user_id', user.id).eq('round_id', roundId).single()
+    async function fetchSavedLineup(merged: PlayerWithPrice[], userId: string) {
+      const { data: ex } = await supabase.from('lineups').select('id').eq('user_id', userId).eq('round_id', roundId).single()
       if (!ex) return
-
       const { data: slots } = await supabase.from('lineup_players').select('player_id, is_captain').eq('lineup_id', ex.id)
-      setLineup((slots ?? []).map(s => { const pl = merged.find(p => p.player_id === s.player_id); return pl ? { player: pl, is_captain: s.is_captain } : null }).filter(Boolean) as Slot[])
+      setLineup((slots ?? []).map(s => {
+        const pl = merged.find(p => p.player_id === s.player_id)
+        return pl ? { player: pl, is_captain: s.is_captain } : null
+      }).filter(Boolean) as Slot[])
     }
 
     async function load() {
@@ -167,8 +160,20 @@ export function MercadoCenter({
       setPlayers(merged)
       setLoading(false)
 
-      // Carrega lineup existente com retry para aguardar sessão
-      await loadLineup(merged)
+      // Tenta carregar lineup imediatamente se já tem sessão
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await fetchSavedLineup(merged, user.id)
+      }
+
+      // Também escuta mudanças de auth — carrega lineup quando sessão fica pronta
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+          await fetchSavedLineup(merged, session.user.id)
+        }
+      })
+
+      return () => subscription.unsubscribe()
     }
     load()
   }, [roundId])
