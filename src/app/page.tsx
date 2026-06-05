@@ -61,7 +61,7 @@ export default async function Home() {
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,240,117,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,117,.04) 1px,transparent 1px)', backgroundSize: '40px 40px', maskImage: 'radial-gradient(ellipse 100% 100% at 50% 0%, black 20%, transparent 80%)' }} />
         <div style={{ position: 'absolute', top: -60, left: '50%', transform: 'translateX(-50%)', width: 700, height: 350, background: 'radial-gradient(ellipse, rgba(0,240,117,.07), transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
+        <div className="hero-grid" style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto' }}>
           <div>
             {champ && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,107,0,.1)', border: '1px solid rgba(255,107,0,.3)', borderRadius: 20, padding: '5px 14px', marginBottom: 20, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--orange)' }}>
@@ -80,7 +80,7 @@ export default async function Home() {
               Monte sua lineup com <strong style={{ color: 'var(--green)' }}>100.000 Line Coins</strong>, pontue com stats reais do HLTV e dispute o ranking com a comunidade.
             </p>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div className="hero-ctas" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link href="/signup" className="btn-green" style={{ display: 'inline-flex', alignItems: 'center', borderRadius: 8, padding: '13px 30px', fontSize: 15, fontWeight: 900, textDecoration: 'none', fontFamily: 'inherit', letterSpacing: '.06em', textTransform: 'uppercase' }}>
                 Jogar agora →
               </Link>
@@ -90,8 +90,8 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Stats card */}
-          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+          {/* Stats card — esconde em mobile */}
+          <div className="hero-stats-card" style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ height: 3, background: 'linear-gradient(90deg, var(--green), var(--cyan))' }} />
             <div style={{ padding: '20px' }}>
               <p className="font-condensed" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>

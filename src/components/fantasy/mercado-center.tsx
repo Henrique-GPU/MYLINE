@@ -252,10 +252,10 @@ export function MercadoCenter({
   }, {} as Record<string, PlayerWithPrice[]>)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: 16, alignItems: 'start' }}>
+    <div className="mercado-layout">
 
       {/* ══ LEFT ══ */}
-      <div>
+      <div className="mercado-content">
 
         {/* ── CONFRONTOS DA RODADA ── */}
         <div style={{ marginBottom: 16 }}>
@@ -567,7 +567,7 @@ export function MercadoCenter({
       </div>
 
       {/* ══ RIGHT: LINEUP PANEL ══ */}
-      <div style={{ position: 'sticky', top: 74 }}>
+      <div className="mercado-panel" style={{ position: 'sticky', top: 74 }}>
 
         {/* ── COUNTDOWN — alerta de urgência ── */}
         <div style={{
