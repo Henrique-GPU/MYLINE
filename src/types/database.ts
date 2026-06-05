@@ -535,6 +535,24 @@ export interface Database {
         }
         Relationships: []
       }
+      leagues: {
+        Row: { id: string; name: string; description: string | null; creator_id: string | null; max_members: number; privacy: string; plan_type: string; invite_code: string | null; created_at: string }
+        Insert: { id?: string; name: string; description?: string | null; creator_id?: string | null; max_members?: number; privacy?: string; plan_type?: string; invite_code?: string | null; created_at?: string }
+        Update: { name?: string; description?: string | null; max_members?: number; privacy?: string; plan_type?: string }
+        Relationships: []
+      }
+      league_championships: {
+        Row: { id: string; league_id: string; championship_id: string; created_at: string }
+        Insert: { id?: string; league_id: string; championship_id: string; created_at?: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
+      league_members: {
+        Row: { id: string; league_id: string; user_id: string; role: string; joined_at: string }
+        Insert: { id?: string; league_id: string; user_id: string; role?: string; joined_at?: string }
+        Update: { role?: string }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
