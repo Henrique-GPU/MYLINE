@@ -45,8 +45,10 @@ export function Navbar() {
   const username    = user?.user_metadata?.username ?? user?.email?.split('@')[0] ?? ''
   const steamAvatar = user?.user_metadata?.steam_avatar as string | undefined
   const initials    = username.slice(0, 2).toUpperCase()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
+    <>
     <header style={{
       height: 58,
       background: 'rgba(5,8,15,.98)',
@@ -64,8 +66,8 @@ export function Navbar() {
       {/* Divider */}
       <div style={{ width: 1, height: 22, background: 'var(--border)', marginRight: 16, flexShrink: 0 }} />
 
-      {/* Nav links */}
-      <nav style={{ display: 'flex', flex: 1, height: '100%' }}>
+      {/* Nav links — esconde em mobile */}
+      <nav className="nav-links" style={{ display: 'flex', flex: 1, height: '100%' }}>
         {NAV_LINKS.map((link) => {
           const active = pathname.startsWith(link.href)
           return (
@@ -178,6 +180,45 @@ export function Navbar() {
           </Link>
         )}
       </div>
+
+      {/* Hamburger mobile */}
+      <button
+        className="nav-mobile"
+        onClick={() => setMobileOpen(o => !o)}
+        style={{ display: 'none', background: 'transparent', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: 20, padding: '4px 8px', marginLeft: 8 }}
+      >
+        {mobileOpen ? '✕' : '☰'}
+      </button>
     </header>
+
+    {/* Mobile menu drawer */}
+    {mobileOpen && (
+      <>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 298, background: 'rgba(0,0,0,.5)' }} onClick={() => setMobileOpen(false)} />
+        <div style={{ position: 'fixed', top: 58, left: 0, right: 0, zIndex: 299, background: 'var(--bg2)', border: '1px solid var(--border)', borderTop: 'none', paddingBottom: 16 }}>
+          {NAV_LINKS.map(link => {
+            const active = pathname.startsWith(link.href)
+            return (
+              <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px',
+                borderBottom: '1px solid var(--border)', textDecoration: 'none',
+                color: active ? 'var(--green)' : 'var(--text2)', fontWeight: active ? 700 : 500, fontSize: 15,
+              }}>
+                <span>{link.icon}</span> {link.label}
+              </Link>
+            )
+          })}
+          {user && (
+            <div style={{ padding: '12px 20px' }}>
+              <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 10 }}>{user.email}</div>
+              <button onClick={() => { setMobileOpen(false); handleLogout() }} style={{ fontSize: 13, color: 'var(--red)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>
+                🚪 Sair
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    )}
+    </>
   )
 }

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLine CS2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 380px; background: #05080f; color: #c8d4e8; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+  .header { background: #090e1a; border-bottom: 1px solid #172030; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .logo { font-weight: 900; font-size: 18px; color: #00f075; letter-spacing: .06em; text-transform: uppercase; }
+  .logo span { color: #5a6e90; font-size: 11px; display: block; font-weight: 400; letter-spacing: .1em; }
+  .badge { background: rgba(0,240,117,.1); border: 1px solid rgba(0,240,117,.25); color: #00f075; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: .1em; margin-left: auto; }
+  .section { padding: 14px 16px; border-bottom: 1px solid #172030; }
+  .section-title { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #38455e; margin-bottom: 10px; }
+  .btn { width: 100%; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; transition: all .15s; }
+  .btn-primary { background: linear-gradient(90deg, #00f075, #00d4ff); color: #000; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: #090e1a; color: #5a6e90; border: 1px solid #172030; margin-top: 8px; }
+  .btn-secondary:hover { color: #c8d4e8; border-color: #1e2d42; }
+  .btn-copy { background: rgba(0,212,255,.1); color: #00d4ff; border: 1px solid rgba(0,212,255,.25); margin-top: 8px; }
+  .status { padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-top: 8px; }
+  .status.success { background: rgba(0,240,117,.08); border: 1px solid rgba(0,240,117,.2); color: #00f075; }
+  .status.error { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); color: #ef4444; }
+  .status.info { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2); color: #f59e0b; }
+  .players-preview { max-height: 200px; overflow-y: auto; margin-top: 10px; }
+  .player-row { display: grid; grid-template-columns: 1fr 35px 35px 50px 50px; gap: 4px; padding: 5px 8px; background: #090e1a; border: 1px solid #172030; border-radius: 6px; margin-bottom: 3px; align-items: center; font-size: 11px; }
+  .player-nick { font-weight: 700; color: #eef2ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .player-stat { text-align: right; color: #5a6e90; }
+  .player-stat.green { color: #00f075; }
+  .header-row { display: grid; grid-template-columns: 1fr 35px 35px 50px 50px; gap: 4px; padding: 3px 8px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #38455e; }
+  .format-section { padding: 12px 16px; }
+  .format-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #38455e; margin-bottom: 8px; }
+  .format-box { background: #090e1a; border: 1px solid #172030; border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #5a6e90; font-family: monospace; line-height: 1.8; }
+  .tag { background: rgba(245,158,11,.1); color: #f59e0b; border: 1px solid rgba(245,158,11,.2); border-radius: 4px; padding: 1px 5px; font-size: 9px; font-weight: 700; }
+  textarea { width: 100%; height: 100px; background: #090e1a; border: 1px solid #172030; border-radius: 8px; padding: 8px; color: #c8d4e8; font-family: monospace; font-size: 11px; resize: none; outline: none; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="logo">MyLine<span>CS2 STATS IMPORTER</span></div>
+  </div>
+  <div class="badge">v1.0</div>
+</div>
+
+<div class="section">
+  <div class="section-title">⚡ Extração Automática — HLTV</div>
+  <button class="btn btn-primary" id="btn-extract">Extrair Stats desta Partida</button>
+  <button class="btn btn-secondary" id="btn-open-hltv">Abrir HLTV Match Stats</button>
+  <div id="status-extract"></div>
+</div>
+
+<div class="section" id="players-section" style="display:none">
+  <div class="section-title" id="players-title">Jogadores encontrados</div>
+  <div class="header-row"><span>Jogador</span><span style="text-align:right">K</span><span style="text-align:right">D</span><span style="text-align:right">ADR</span><span style="text-align:right">RTG</span></div>
+  <div class="players-preview" id="players-list"></div>
+  <button class="btn btn-copy" id="btn-copy-csv">📋 Copiar CSV para Admin Panel</button>
+  <button class="btn btn-copy" id="btn-copy-json" style="background: rgba(139,92,246,.1); color: #8b5cf6; border-color: rgba(139,92,246,.25);">📋 Copiar JSON</button>
+</div>
+
+<div class="format-section">
+  <div class="format-title">📋 Formato CSV — Admin Panel</div>
+  <div class="format-box">
+    nickname,kills,deaths,assists,rating,adr,entry_kills,clutches,mvp,won<br>
+    <span style="color:#00f075">donk</span>,28,12,5,1.45,88.3,8,2,<span class="tag">1</span>,<span class="tag">1</span><br>
+    <span style="color:#00f075">sh1ro</span>,22,14,6,1.28,76.2,2,1,<span class="tag">0</span>,<span class="tag">1</span>
+  </div>
+  <p style="font-size: 10px; color: #38455e; margin-top: 8px; line-height: 1.6;">
+    ⚠️ <strong style="color:#f59e0b">entry_kills</strong>, <strong style="color:#f59e0b">clutches</strong> e <strong style="color:#f59e0b">mvp</strong> precisam ser preenchidos manualmente após a extração.
+    <br>
+    <strong style="color:#f59e0b">won</strong>: 1 se o time ganhou, 0 se perdeu.
+  </p>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

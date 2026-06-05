@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "MyLine CS2 — Stats Importer",
+  "version": "1.0.0",
+  "description": "Importa stats de partidas do HLTV diretamente para o MyLine CS2 Admin Panel.",
+  "permissions": ["activeTab", "scripting", "clipboardWrite"],
+  "host_permissions": ["https://www.hltv.org/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.hltv.org/matches/*", "https://www.hltv.org/stats/matches/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
